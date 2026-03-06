@@ -162,6 +162,11 @@ const elements = {
 init();
 
 function init() {
+  if (!state.authToken) {
+    redirectToAuthGate();
+    return;
+  }
+
   bindEvents();
   setupPwa();
   applyAuthMode();
@@ -232,7 +237,9 @@ function bindEvents() {
     void onAuthSubmit();
   });
 
-  elements.logoutBtn.addEventListener("click", onLogout);
+  elements.logoutBtn.addEventListener("click", () => {
+    void onLogout();
+  });
   elements.manageBillingBtn.addEventListener("click", () => {
     void refreshBillingStatus();
   });
@@ -495,6 +502,7 @@ async function refreshCurrentUser() {
     state.latestId = null;
     state.usage = {};
     saveState();
+    redirectToAuthGate();
   }
 }
 
@@ -630,7 +638,16 @@ async function onAuthSubmit() {
   }
 }
 
-function onLogout() {
+async function onLogout() {
+  try {
+    await apiRequest("/api/auth/logout", {
+      method: "POST",
+      auth: true
+    });
+  } catch (_error) {
+    // even if backend logout fails, clear local session and redirect
+  }
+
   currentUser = null;
   state.authToken = "";
   clearProfileState();
@@ -647,8 +664,7 @@ function onLogout() {
 
   saveState();
   renderAll();
-  setActiveView("create");
-  setMessage(elements.authMessage, "Вы вышли из аккаунта.", "success");
+  redirectToAuthGate();
 }
 
 function clearProfileState() {
@@ -1600,6 +1616,13 @@ function setGenerateButtonState(loading) {
 
   elements.generateSubmitBtn.disabled = loading;
   elements.generateSubmitBtn.textContent = loading ? "Генерируем..." : "Сгенерировать";
+}
+
+function redirectToAuthGate() {
+  const next = `${window.location.origin}/?auth=1`;
+  if (window.location.href !== next) {
+    window.location.replace(next);
+  }
 }
 
 function isAdmin() {

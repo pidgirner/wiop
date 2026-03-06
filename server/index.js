@@ -29,6 +29,8 @@ const OPENAI_TEMPERATURE = Number.isFinite(Number(process.env.OPENAI_TEMPERATURE
 const OPENAI_MAX_TOKENS = Number.isFinite(Number(process.env.OPENAI_MAX_TOKENS))
   ? Math.max(128, Math.min(4096, Number.parseInt(process.env.OPENAI_MAX_TOKENS, 10)))
   : 900;
+const SESSION_COOKIE_NAME = "lcs_session";
+const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 const CARDLINK_API_BASE = (process.env.CARDLINK_API_BASE || "https://cardlink.link").replace(/\/+$/, "");
 const CARDLINK_API_TOKEN = process.env.CARDLINK_API_TOKEN || "";
@@ -278,6 +280,7 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
     const token = makeToken(user);
+    setSessionCookie(req, res, token);
     return res.status(201).json({ token, user });
   } catch (error) {
     if (error.message === "EMAIL_IN_USE") {
@@ -317,8 +320,14 @@ app.post("/api/auth/login", async (req, res) => {
 
   const publicUser = updatedUser || sanitizeUser(user);
   const token = makeToken(publicUser);
+  setSessionCookie(req, res, token);
 
   return res.json({ token, user: publicUser });
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  clearSessionCookie(req, res);
+  return res.json({ ok: true });
 });
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
@@ -801,16 +810,26 @@ app.get("/index.html", (_req, res) => {
   res.redirect(302, "/app");
 });
 
-app.get("/app", (_req, res) => {
+app.get("/app", (req, res) => {
+  if (!hasValidSessionCookie(req)) {
+    return res.redirect(302, "/?auth=1");
+  }
+
   res.set("X-Robots-Tag", "noindex, nofollow");
   res.sendFile(APP_INDEX_PATH);
 });
 
-app.get("/app/", (_req, res) => {
+app.get("/app/", (req, res) => {
+  if (!hasValidSessionCookie(req)) {
+    return res.redirect(302, "/?auth=1");
+  }
   res.redirect(302, "/app");
 });
 
-app.get(/^\/app\/.+/, (_req, res) => {
+app.get(/^\/app\/.+/, (req, res) => {
+  if (!hasValidSessionCookie(req)) {
+    return res.redirect(302, "/?auth=1");
+  }
   res.redirect(302, "/app");
 });
 
@@ -1069,8 +1088,7 @@ async function applyCardlinkPayload(payload, source, strictSignature) {
 }
 
 function requireAuth(req, res, next) {
-  const authHeader = String(req.headers.authorization || "");
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const token = extractAuthTokenFromRequest(req);
 
   if (!token) {
     return res.status(401).json({ error: "Требуется авторизация." });
@@ -2455,6 +2473,84 @@ function isTruthy(value) {
 
 function isCardlinkReady() {
   return Boolean(CARDLINK_API_TOKEN && CARDLINK_SHOP_ID);
+}
+
+function extractAuthTokenFromRequest(req) {
+  const authHeader = String(req.headers.authorization || "");
+  const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (bearerToken) {
+    return bearerToken;
+  }
+
+  const cookies = parseCookies(req.headers.cookie || "");
+  return String(cookies[SESSION_COOKIE_NAME] || "").trim();
+}
+
+function hasValidSessionCookie(req) {
+  const token = extractAuthTokenFromRequest(req);
+  if (!token) {
+    return false;
+  }
+
+  try {
+    jwt.verify(token, JWT_SECRET);
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+function setSessionCookie(req, res, token) {
+  res.cookie(SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isSecureRequest(req),
+    maxAge: SESSION_MAX_AGE_MS,
+    path: "/"
+  });
+}
+
+function clearSessionCookie(req, res) {
+  res.clearCookie(SESSION_COOKIE_NAME, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: isSecureRequest(req),
+    path: "/"
+  });
+}
+
+function parseCookies(cookieHeader) {
+  const pairs = String(cookieHeader || "")
+    .split(";")
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
+  const map = {};
+  for (const pair of pairs) {
+    const idx = pair.indexOf("=");
+    if (idx <= 0) {
+      continue;
+    }
+    const key = pair.slice(0, idx).trim();
+    const value = pair.slice(idx + 1).trim();
+    if (!key) {
+      continue;
+    }
+    try {
+      map[key] = decodeURIComponent(value);
+    } catch (_error) {
+      map[key] = value;
+    }
+  }
+  return map;
+}
+
+function isSecureRequest(req) {
+  const forwarded = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim().toLowerCase();
+  if (forwarded === "https") {
+    return true;
+  }
+  return req.protocol === "https";
 }
 
 function isSupabaseReady() {
