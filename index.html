@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#eaf6ff" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Liquid Studio" />
+    <title>Liquid Content Studio</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <div class="app-shell">
+      <header class="topbar glass-panel">
+        <div>
+          <p class="eyebrow">AI Creator App</p>
+          <h1>Liquid Content Studio</h1>
+        </div>
+        <div class="topbar-meta">
+          <span id="activePlanBadge" class="plan-badge">FREE</span>
+          <span id="authStatusBadge" class="auth-pill">Гость</span>
+          <button id="installAppBtn" class="ghost-btn install-btn hidden" type="button">Установить App</button>
+          <div class="usage-block">
+            <span id="usageText">0 / 30 в этом месяце</span>
+            <div class="usage-track">
+              <div id="usageFill" class="usage-fill"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tabbar glass-panel" aria-label="Разделы">
+        <button class="tab-btn active" data-tab="create">Создание</button>
+        <button class="tab-btn" data-tab="history">История</button>
+        <button class="tab-btn" data-tab="profile">Профиль</button>
+        <button id="adminTabBtn" class="tab-btn hidden" data-tab="admin">Админ</button>
+      </nav>
+
+      <main>
+        <section class="view active" id="view-create">
+          <div class="grid two-col">
+            <article class="glass-panel panel">
+              <div class="panel-head">
+                <h2>Новая генерация</h2>
+                <p>Фото, видео, аудио, текст и готовые посты.</p>
+              </div>
+
+              <form id="generatorForm" class="stack">
+                <div>
+                  <label class="label">Тип контента</label>
+                  <div id="contentTypeGroup" class="type-group">
+                    <button type="button" class="type-btn active" data-type="text">Текст</button>
+                    <button type="button" class="type-btn" data-type="image">Фото</button>
+                    <button type="button" class="type-btn" data-type="video">Видео</button>
+                    <button type="button" class="type-btn" data-type="audio">Аудио</button>
+                    <button type="button" class="type-btn" data-type="post">Готовый пост</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label" for="promptInput">Промпт</label>
+                  <textarea
+                    id="promptInput"
+                    rows="4"
+                    placeholder="Например: Сделай динамичный пост про запуск нового продукта для Instagram"
+                  ></textarea>
+                </div>
+
+                <div class="inline-fields">
+                  <div>
+                    <label class="label" for="toneSelect">Тон</label>
+                    <select id="toneSelect">
+                      <option value="премиальный">Премиальный</option>
+                      <option value="дружелюбный">Дружелюбный</option>
+                      <option value="экспертный">Экспертный</option>
+                      <option value="агрессивный">Продажный</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="label" for="platformSelect">Платформа</label>
+                    <select id="platformSelect">
+                      <option value="Instagram">Instagram</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="Telegram">Telegram</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" class="primary-btn">Сгенерировать</button>
+              </form>
+
+              <p id="generatorMessage" class="message" aria-live="polite"></p>
+            </article>
+
+            <article class="glass-panel panel">
+              <div class="panel-head">
+                <h2>Результат</h2>
+                <p>Последняя генерация сохраняется в историю автоматически.</p>
+              </div>
+
+              <div id="latestOutput" class="output-card empty">
+                <p>Пока нет генераций. Заполните форму слева.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="view-history">
+          <article class="glass-panel panel">
+            <div class="panel-head split">
+              <div>
+                <h2>История генераций</h2>
+                <p>Все созданные материалы по всем типам контента.</p>
+              </div>
+              <button id="clearHistoryBtn" class="ghost-btn">Очистить историю</button>
+            </div>
+
+            <div class="history-controls">
+              <input id="historySearch" type="search" placeholder="Поиск по промпту или результату" />
+              <select id="historyFilter">
+                <option value="all">Все типы</option>
+                <option value="text">Текст</option>
+                <option value="image">Фото</option>
+                <option value="video">Видео</option>
+                <option value="audio">Аудио</option>
+                <option value="post">Готовый пост</option>
+              </select>
+            </div>
+
+            <div id="historyList" class="history-list"></div>
+          </article>
+        </section>
+
+        <section class="view" id="view-profile">
+          <article class="glass-panel panel">
+            <div class="panel-head">
+              <h2>Профиль</h2>
+              <p>Полноценный аккаунт автора с персональными данными.</p>
+            </div>
+
+            <section class="glass-lite auth-panel">
+              <div id="authLoggedOut" class="stack">
+                <div class="auth-mode-group">
+                  <button type="button" class="auth-mode-btn active" data-auth-mode="login">Вход</button>
+                  <button type="button" class="auth-mode-btn" data-auth-mode="register">Регистрация</button>
+                </div>
+
+                <form id="authForm" class="stack">
+                  <div class="inline-fields">
+                    <div>
+                      <label class="label" for="authEmail">Email</label>
+                      <input id="authEmail" type="email" placeholder="name@email.com" required />
+                    </div>
+                    <div>
+                      <label class="label" for="authPassword">Пароль</label>
+                      <input id="authPassword" type="password" minlength="8" placeholder="Минимум 8 символов" required />
+                    </div>
+                  </div>
+
+                  <div class="inline-fields auth-register-only">
+                    <div>
+                      <label class="label" for="authFullName">Имя</label>
+                      <input id="authFullName" type="text" placeholder="Ваше имя" />
+                    </div>
+                    <div>
+                      <label class="label" for="authUsername">Username</label>
+                      <input id="authUsername" type="text" placeholder="@username" />
+                    </div>
+                  </div>
+
+                  <button id="authSubmitBtn" type="submit" class="primary-btn">Войти</button>
+                  <p id="authMessage" class="message" aria-live="polite"></p>
+                </form>
+              </div>
+
+              <div id="authLoggedIn" class="stack hidden">
+                <p id="authIdentity" class="auth-identity"></p>
+                <div class="auth-actions">
+                  <button id="manageBillingBtn" type="button" class="ghost-btn">Обновить статус оплаты</button>
+                  <button id="logoutBtn" type="button" class="ghost-btn danger">Выйти</button>
+                </div>
+                <p id="billingMessage" class="message" aria-live="polite"></p>
+              </div>
+            </section>
+
+            <div class="profile-wrap">
+              <div class="avatar" id="avatarPreview">LC</div>
+
+              <form id="profileForm" class="stack grow">
+                <div class="inline-fields">
+                  <div>
+                    <label class="label" for="fullName">Имя</label>
+                    <input id="fullName" type="text" placeholder="Ваше имя" />
+                  </div>
+                  <div>
+                    <label class="label" for="username">Username</label>
+                    <input id="username" type="text" placeholder="@username" />
+                  </div>
+                </div>
+
+                <div class="inline-fields">
+                  <div>
+                    <label class="label" for="email">Email</label>
+                    <input id="email" type="email" placeholder="name@email.com" />
+                  </div>
+                  <div>
+                    <label class="label" for="website">Сайт</label>
+                    <input id="website" type="url" placeholder="https://" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="label" for="bio">О себе</label>
+                  <textarea id="bio" rows="3" placeholder="Короткое описание, ниша, стиль"></textarea>
+                </div>
+
+                <button type="submit" class="primary-btn">Сохранить профиль</button>
+                <p id="profileMessage" class="message" aria-live="polite"></p>
+              </form>
+            </div>
+
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <section class="glass-lite profile-plans">
+              <div class="panel-head">
+                <h2>Подписка</h2>
+                <p>Управляйте тарифом прямо в профиле.</p>
+              </div>
+              <div id="plansGrid" class="plans-grid"></div>
+            </section>
+          </article>
+        </section>
+
+        <section class="view" id="view-admin">
+          <article class="glass-panel panel">
+            <div class="panel-head split">
+              <div>
+                <h2>Админ панель</h2>
+                <p>Управление клиентами, подписками и аналитикой платежей.</p>
+              </div>
+              <button id="adminRefreshBtn" class="ghost-btn">Обновить данные</button>
+            </div>
+
+            <div id="adminMetricsGrid" class="stats-grid"></div>
+
+            <section class="glass-lite admin-section">
+              <div class="panel-head">
+                <h2>Клиенты</h2>
+                <p>Поиск и ручное управление планами и статусами.</p>
+              </div>
+
+              <div class="admin-controls">
+                <input id="adminUserSearch" type="search" placeholder="Поиск: email, имя, username" />
+                <select id="adminPlanFilter">
+                  <option value="">Все планы</option>
+                  <option value="free">Free</option>
+                  <option value="plus">Plus</option>
+                  <option value="pro">Pro</option>
+                </select>
+                <select id="adminRoleFilter">
+                  <option value="">Все роли</option>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <select id="adminStatusFilter">
+                  <option value="">Любой статус</option>
+                  <option value="active">Активные</option>
+                  <option value="blocked">Заблокированные</option>
+                </select>
+              </div>
+
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Пользователь</th>
+                      <th>Роль</th>
+                      <th>План</th>
+                      <th>Статус</th>
+                      <th>Создан</th>
+                      <th>Действие</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUsersBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="glass-lite admin-section">
+              <div class="panel-head">
+                <h2>Платежи</h2>
+                <p>Последние платежные события из Cardlink.</p>
+              </div>
+
+              <div class="admin-controls">
+                <select id="adminPaymentStatusFilter">
+                  <option value="">Все статусы</option>
+                  <option value="SUCCESS">SUCCESS</option>
+                  <option value="OVERPAID">OVERPAID</option>
+                  <option value="UNDERPAID">UNDERPAID</option>
+                  <option value="PROCESS">PROCESS</option>
+                  <option value="NEW">NEW</option>
+                  <option value="FAIL">FAIL</option>
+                </select>
+              </div>
+
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Пользователь</th>
+                      <th>План</th>
+                      <th>Сумма</th>
+                      <th>Статус</th>
+                      <th>Order ID</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminPaymentsBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="glass-lite admin-section">
+              <div class="panel-head">
+                <h2>Лиды с лендинга</h2>
+                <p>Заявки потенциальных клиентов и их статус обработки.</p>
+              </div>
+
+              <div class="admin-controls compact">
+                <select id="adminLeadStatusFilter">
+                  <option value="">Все статусы</option>
+                  <option value="new">new</option>
+                  <option value="contacted">contacted</option>
+                  <option value="qualified">qualified</option>
+                  <option value="converted">converted</option>
+                  <option value="archived">archived</option>
+                </select>
+              </div>
+
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Контакт</th>
+                      <th>Компания</th>
+                      <th>Задача</th>
+                      <th>Статус</th>
+                      <th>Действие</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminLeadsBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <p id="adminMessage" class="message" aria-live="polite"></p>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <template id="historyItemTemplate">
+      <article class="history-item glass-lite">
+        <header>
+          <span class="chip"></span>
+          <time></time>
+        </header>
+        <p class="history-prompt"></p>
+        <p class="history-output"></p>
+        <div class="history-actions">
+          <button class="ghost-btn copy-btn">Копировать</button>
+          <button class="ghost-btn danger delete-btn">Удалить</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>

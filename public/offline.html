@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eaf6ff" />
+    <title>Offline | Liquid Content Studio</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: "SF Pro Display", "Avenir Next", "Segoe UI", sans-serif;
+        background: linear-gradient(160deg, #f7fcff, #e9f7ff 45%, #f4fbff);
+        color: #13324a;
+      }
+      .card {
+        width: min(420px, 100%);
+        border-radius: 22px;
+        border: 1px solid rgba(77, 132, 173, 0.24);
+        background: rgba(255, 255, 255, 0.74);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 22px;
+        box-shadow: 0 20px 38px rgba(92, 137, 168, 0.2);
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 24px;
+      }
+      p {
+        margin: 0;
+        line-height: 1.5;
+        color: #456780;
+      }
+      a {
+        margin-top: 14px;
+        display: inline-block;
+        text-decoration: none;
+        color: #0b6fd6;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="card">
+      <h1>Нет сети</h1>
+      <p>Приложение работает офлайн для интерфейса, но для оплаты и авторизации нужно подключение к интернету.</p>
+      <a href="/app">Попробовать снова</a>
+    </article>
+  </body>
+</html>

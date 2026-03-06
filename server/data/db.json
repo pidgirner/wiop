@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": "6e9853ea-5c78-44a2-b347-98fc7b2cfc0d",
+      "email": "admin@liquid.local",
+      "passwordHash": "$2b$10$6zrGF1kmf5y/kh3gRNw7/eEpMKrN5qI.C1JmGDNPFNuh8f5M11CYS",
+      "role": "admin",
+      "status": "active",
+      "planId": "pro",
+      "planStatus": "active",
+      "profile": {
+        "fullName": "System Admin",
+        "username": "admin",
+        "website": "",
+        "bio": ""
+      },
+      "createdAt": "2026-03-06T11:38:19.987Z",
+      "updatedAt": "2026-03-06T11:38:19.987Z",
+      "lastLoginAt": null,
+      "lastPaymentAt": null
+    }
+  ],
+  "payments": [],
+  "leads": []
+}

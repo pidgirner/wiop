@@ -1,0 +1,56 @@
+{
+  "name": "Liquid Content Studio",
+  "short_name": "Liquid Studio",
+  "description": "AI-приложение для генерации контента и управления подпиской.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eaf6ff",
+  "theme_color": "#eaf6ff",
+  "lang": "ru",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Создать контент",
+      "short_name": "Создать",
+      "url": "/app?view=create"
+    },
+    {
+      "name": "История",
+      "short_name": "История",
+      "url": "/app?view=history"
+    },
+    {
+      "name": "Профиль",
+      "short_name": "Профиль",
+      "url": "/app?view=profile"
+    }
+  ]
+}
