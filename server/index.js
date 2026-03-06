@@ -854,7 +854,8 @@ app.get("/landing", async (req, res) => {
 });
 
 app.get("/favicon.ico", (_req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, "icons", "icon-192.png"));
+  res.type("image/svg+xml");
+  res.sendFile(path.join(PUBLIC_DIR, "icons", "icon-wiop.svg"));
 });
 
 app.get(/^\/(?!api(?:\/|$)).*/, async (req, res) => {

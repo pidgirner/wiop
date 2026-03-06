@@ -1,4 +1,4 @@
-const CACHE_VERSION = "lcs-v1.1.0";
+const CACHE_VERSION = "lcs-v1.2.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -12,10 +12,7 @@ const APP_SHELL = [
   "/landing.js",
   "/manifest.webmanifest",
   "/offline.html",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/icon-192-maskable.png",
-  "/icons/icon-512-maskable.png"
+  "/icons/icon-wiop.svg"
 ];
 
 self.addEventListener("install", (event) => {
