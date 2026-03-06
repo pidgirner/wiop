@@ -59,9 +59,14 @@ const PAYMENT_FAIL_STATUSES = new Set(["FAIL"]);
 
 const DEFAULT_STATE = {
   selectedType: "text",
+  profileTab: "general",
   history: [],
   latestId: null,
   usage: {},
+  notifications: {
+    news: true,
+    tips: true
+  },
   authToken: "",
   authMode: "login",
   profile: {
@@ -135,6 +140,26 @@ const elements = {
   email: document.getElementById("email"),
   website: document.getElementById("website"),
   bio: document.getElementById("bio"),
+  profileBackBtn: document.getElementById("profileBackBtn"),
+  profileDisplayName: document.getElementById("profileDisplayName"),
+  profileDisplayEmail: document.getElementById("profileDisplayEmail"),
+  profileRoleBadge: document.getElementById("profileRoleBadge"),
+  profileTabButtons: Array.from(document.querySelectorAll("[data-profile-tab]")),
+  profileTabPanels: Array.from(document.querySelectorAll("[data-profile-panel]")),
+  profileAdminAccessBtn: document.getElementById("profileAdminAccessBtn"),
+  profileCurrentPlanName: document.getElementById("profileCurrentPlanName"),
+  profileCurrentPlanPrice: document.getElementById("profileCurrentPlanPrice"),
+  profilePlanFeatures: document.getElementById("profilePlanFeatures"),
+  profileCancelPlanBtn: document.getElementById("profileCancelPlanBtn"),
+  updatePasswordBtn: document.getElementById("updatePasswordBtn"),
+  securityCurrentPassword: document.getElementById("securityCurrentPassword"),
+  securityNewPassword: document.getElementById("securityNewPassword"),
+  securityConfirmPassword: document.getElementById("securityConfirmPassword"),
+  securityMessage: document.getElementById("securityMessage"),
+  notifyNews: document.getElementById("notifyNews"),
+  notifyTips: document.getElementById("notifyTips"),
+  saveNotificationsBtn: document.getElementById("saveNotificationsBtn"),
+  notificationMessage: document.getElementById("notificationMessage"),
   avatarPreview: document.getElementById("avatarPreview"),
   profileMessage: document.getElementById("profileMessage"),
   statsGrid: document.getElementById("statsGrid"),
@@ -155,6 +180,8 @@ const elements = {
   billingMessage: document.getElementById("billingMessage"),
   adminRefreshBtn: document.getElementById("adminRefreshBtn"),
   adminMetricsGrid: document.getElementById("adminMetricsGrid"),
+  adminRecentUsersBody: document.getElementById("adminRecentUsersBody"),
+  adminBackBtn: document.getElementById("adminBackBtn"),
   adminUserSearch: document.getElementById("adminUserSearch"),
   adminPlanFilter: document.getElementById("adminPlanFilter"),
   adminRoleFilter: document.getElementById("adminRoleFilter"),
@@ -278,19 +305,35 @@ function bindEvents() {
     void onClearHistory();
   });
 
-  elements.plansGrid.addEventListener("click", (event) => {
-    const target = event.target.closest("button[data-action]");
-    if (!target) {
-      return;
-    }
+  if (elements.plansGrid) {
+    elements.plansGrid.addEventListener("click", (event) => {
+      const target = event.target.closest("button[data-action]");
+      if (!target) {
+        return;
+      }
 
-    void handlePlanAction(target.dataset.action, target.dataset.plan);
+      void handlePlanAction(target.dataset.action, target.dataset.plan);
+    });
+  }
+
+  if (elements.profileForm) {
+    elements.profileForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      void onProfileSave();
+    });
+  }
+
+  elements.profileTabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setProfileTab(button.dataset.profileTab);
+    });
   });
 
-  elements.profileForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    void onProfileSave();
-  });
+  if (elements.profileBackBtn) {
+    elements.profileBackBtn.addEventListener("click", () => {
+      setActiveView("create");
+    });
+  }
 
   elements.authModeButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -300,20 +343,65 @@ function bindEvents() {
     });
   });
 
-  elements.authForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    void onAuthSubmit();
-  });
+  if (elements.authForm) {
+    elements.authForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      void onAuthSubmit();
+    });
+  }
 
-  elements.logoutBtn.addEventListener("click", () => {
-    void onLogout();
-  });
-  elements.profileSubscriptionBtn.addEventListener("click", () => {
-    setActiveView("plan");
-  });
-  elements.installAppBtn.addEventListener("click", () => {
-    void handleInstallClick();
-  });
+  if (elements.logoutBtn) {
+    elements.logoutBtn.addEventListener("click", () => {
+      void onLogout();
+    });
+  }
+
+  if (elements.profileSubscriptionBtn) {
+    elements.profileSubscriptionBtn.addEventListener("click", () => {
+      setProfileTab("subscription");
+      elements.plansGrid?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  if (elements.profileCancelPlanBtn) {
+    elements.profileCancelPlanBtn.addEventListener("click", () => {
+      setMessage(
+        elements.billingMessage,
+        "Для отмены подписки напишите в поддержку. Авто-отмена появится в следующем релизе.",
+        "error"
+      );
+    });
+  }
+
+  if (elements.profileAdminAccessBtn) {
+    elements.profileAdminAccessBtn.addEventListener("click", () => {
+      if (isAdmin()) {
+        setActiveView("admin");
+      }
+    });
+  }
+
+  if (elements.updatePasswordBtn) {
+    elements.updatePasswordBtn.addEventListener("click", () => {
+      void onPasswordUpdate();
+    });
+  }
+
+  if (elements.saveNotificationsBtn) {
+    elements.saveNotificationsBtn.addEventListener("click", onSaveNotificationSettings);
+  }
+
+  if (elements.installAppBtn) {
+    elements.installAppBtn.addEventListener("click", () => {
+      void handleInstallClick();
+    });
+  }
+
+  if (elements.adminBackBtn) {
+    elements.adminBackBtn.addEventListener("click", () => {
+      setActiveView("profile");
+    });
+  }
 
   if (elements.adminRefreshBtn) {
     elements.adminRefreshBtn.addEventListener("click", () => {
@@ -385,6 +473,30 @@ function bindEvents() {
   }
 }
 
+function setProfileTab(tabId, options = {}) {
+  const allowedTabs = new Set(["general", "security", "subscription", "notifications"]);
+  const target = allowedTabs.has(tabId) ? tabId : "general";
+  const persist = options.persist !== false;
+
+  elements.profileTabButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.profileTab === target);
+  });
+
+  elements.profileTabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.profilePanel === target);
+  });
+
+  if (persist) {
+    state.profileTab = target;
+    saveState();
+  }
+}
+
+function openSubscriptionView() {
+  setActiveView("profile");
+  setProfileTab("subscription");
+}
+
 function setSelectedType(type) {
   if (!CONTENT_TYPES[type]) {
     return;
@@ -443,16 +555,29 @@ async function bootstrap() {
 function applyViewFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const view = params.get("view");
-  const allowed = new Set(["create", "history", "profile", "plan"]);
+  const profileTab = params.get("profileTab");
+  const allowed = new Set(["create", "history", "profile"]);
   if (isAdmin()) {
     allowed.add("admin");
   }
 
-  if (!view || !allowed.has(view)) {
+  if (!view) {
+    return;
+  }
+
+  if (view === "plan") {
+    openSubscriptionView();
+    return;
+  }
+
+  if (!allowed.has(view)) {
     return;
   }
 
   setActiveView(view);
+  if (view === "profile" && profileTab) {
+    setProfileTab(profileTab);
+  }
 }
 
 function setupPwa() {
@@ -615,16 +740,16 @@ async function handleCheckoutReturn() {
 
   if (checkout === "cancel") {
     setMessage(elements.billingMessage, "Оплата отменена или не прошла.", "error");
-    setActiveView("plan");
+    openSubscriptionView();
   }
 
   if (checkout === "success") {
     if (!invId) {
       setMessage(elements.billingMessage, "Оплата завершена, но inv_id не найден.", "error");
-      setActiveView("plan");
+      openSubscriptionView();
     } else if (!state.authToken) {
       setMessage(elements.billingMessage, "Войдите в аккаунт, чтобы синхронизировать оплату.", "error");
-      setActiveView("plan");
+      openSubscriptionView();
     } else {
       await pollPaymentResult(invId);
     }
@@ -652,13 +777,13 @@ async function pollPaymentResult(invId) {
         await refreshCurrentUser();
         renderAll();
         setMessage(elements.billingMessage, "Платеж подтвержден. Подписка активирована.", "success");
-        setActiveView("plan");
+        openSubscriptionView();
         return;
       }
 
       if (PAYMENT_FAIL_STATUSES.has(status)) {
         setMessage(elements.billingMessage, "Платеж отклонен. Попробуйте снова.", "error");
-        setActiveView("plan");
+        openSubscriptionView();
         return;
       }
     } catch (_error) {
@@ -675,7 +800,7 @@ async function pollPaymentResult(invId) {
     "Платеж в обработке. Статус обновится автоматически после postback.",
     "error"
   );
-  setActiveView("plan");
+  openSubscriptionView();
 }
 
 async function onAuthSubmit() {
@@ -767,12 +892,15 @@ async function onLogout() {
 }
 
 function clearProfileState() {
+  state.profileTab = "general";
   state.profile.fullName = "";
   state.profile.username = "";
   state.profile.email = "";
   state.profile.website = "";
   state.profile.bio = "";
   state.profile.joinedAt = new Date().toISOString();
+  state.notifications.news = true;
+  state.notifications.tips = true;
 }
 
 async function onProfileSave() {
@@ -815,12 +943,75 @@ async function onProfileSave() {
   setMessage(elements.profileMessage, "Профиль сохранен локально. Для облака выполните вход.", "success");
 }
 
+async function onPasswordUpdate() {
+  const currentPassword = elements.securityCurrentPassword?.value.trim() || "";
+  const newPassword = elements.securityNewPassword?.value.trim() || "";
+  const confirmPassword = elements.securityConfirmPassword?.value.trim() || "";
+
+  clearMessage(elements.securityMessage);
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    setMessage(elements.securityMessage, "Заполните все поля для смены пароля.", "error");
+    return;
+  }
+
+  if (newPassword.length < 8) {
+    setMessage(elements.securityMessage, "Новый пароль должен быть не короче 8 символов.", "error");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    setMessage(elements.securityMessage, "Подтверждение пароля не совпадает.", "error");
+    return;
+  }
+
+  try {
+    const data = await apiRequest("/api/auth/password", {
+      method: "POST",
+      auth: true,
+      body: { currentPassword, newPassword }
+    });
+
+    if (data?.token) {
+      state.authToken = data.token;
+    }
+    if (data?.user) {
+      currentUser = data.user;
+      syncUserToState(currentUser);
+      renderTopBar();
+      renderProfile();
+    }
+    saveState();
+
+    if (elements.securityCurrentPassword) {
+      elements.securityCurrentPassword.value = "";
+    }
+    if (elements.securityNewPassword) {
+      elements.securityNewPassword.value = "";
+    }
+    if (elements.securityConfirmPassword) {
+      elements.securityConfirmPassword.value = "";
+    }
+
+    setMessage(elements.securityMessage, "Пароль успешно обновлен.", "success");
+  } catch (error) {
+    setMessage(elements.securityMessage, error.message, "error");
+  }
+}
+
+function onSaveNotificationSettings() {
+  state.notifications.news = Boolean(elements.notifyNews?.checked);
+  state.notifications.tips = Boolean(elements.notifyTips?.checked);
+  saveState();
+  setMessage(elements.notificationMessage, "Настройки уведомлений сохранены.", "success");
+}
+
 async function handlePlanAction(action, planId) {
   clearMessage(elements.billingMessage);
 
   if (action === "need-auth") {
-    setActiveView("profile");
-    setMessage(elements.authMessage, "Чтобы оформить подписку, сначала войдите в аккаунт.", "error");
+    openSubscriptionView();
+    setMessage(elements.profileMessage, "Чтобы оформить подписку, сначала войдите в аккаунт.", "error");
     return;
   }
 
@@ -836,7 +1027,7 @@ async function handlePlanAction(action, planId) {
 
 async function startCheckout(planId) {
   if (!currentUser) {
-    setActiveView("plan");
+    openSubscriptionView();
     setMessage(elements.authMessage, "Сначала войдите в аккаунт.", "error");
     return;
   }
@@ -855,7 +1046,7 @@ async function startCheckout(planId) {
     window.location.href = data.url;
   } catch (error) {
     setMessage(elements.billingMessage, error.message, "error");
-    setActiveView("plan");
+    openSubscriptionView();
   }
 }
 
@@ -879,7 +1070,9 @@ async function onGenerate(event) {
 
   if (!currentUser) {
     setActiveView("profile");
+    setProfileTab("general");
     setMessage(elements.authMessage, "Войдите в аккаунт, чтобы запускать AI-генерацию.", "error");
+    setMessage(elements.profileMessage, "Войдите в аккаунт, чтобы запускать AI-генерацию.", "error");
     setMessage(elements.generatorMessage, "Генерация доступна после входа в аккаунт.", "error");
     return;
   }
@@ -1117,15 +1310,23 @@ function renderNavigation() {
 
 function renderAuthPanel() {
   const loggedIn = Boolean(currentUser);
-  elements.authLoggedOut.classList.toggle("hidden", loggedIn);
-  elements.authLoggedIn.classList.toggle("hidden", !loggedIn);
+  if (elements.authLoggedOut) {
+    elements.authLoggedOut.classList.add("hidden");
+  }
+  if (elements.authLoggedIn) {
+    elements.authLoggedIn.classList.add("hidden");
+  }
 
   if (loggedIn) {
     const identity = currentUser.profile?.fullName || currentUser.profile?.username || currentUser.email;
     const role = currentUser.role === "admin" ? "admin" : "user";
-    elements.authIdentity.textContent = `Вы вошли как ${identity} (${role}). Текущий план: ${getCurrentPlan().label}.`;
+    if (elements.authIdentity) {
+      elements.authIdentity.textContent = `Вы вошли как ${identity} (${role}). Текущий план: ${getCurrentPlan().label}.`;
+    }
   } else {
-    elements.authIdentity.textContent = "";
+    if (elements.authIdentity) {
+      elements.authIdentity.textContent = "";
+    }
   }
 
   applyAuthMode();
@@ -1138,8 +1339,12 @@ function applyAuthMode() {
     button.classList.toggle("active", button.dataset.authMode === mode);
   });
 
-  elements.authRegisterOnly.classList.toggle("hidden", mode !== "register");
-  elements.authSubmitBtn.textContent = mode === "register" ? "Создать аккаунт" : "Войти";
+  if (elements.authRegisterOnly) {
+    elements.authRegisterOnly.classList.toggle("hidden", mode !== "register");
+  }
+  if (elements.authSubmitBtn) {
+    elements.authSubmitBtn.textContent = mode === "register" ? "Создать аккаунт" : "Войти";
+  }
 }
 
 function renderTypeButtons() {
@@ -1318,6 +1523,10 @@ async function onClearHistory() {
 }
 
 function renderPlans() {
+  if (!elements.plansGrid) {
+    return;
+  }
+
   const currentPlanId = getCurrentPlanId();
 
   elements.plansGrid.innerHTML = Object.values(PLAN_CONFIG)
@@ -1369,17 +1578,67 @@ function buildPlanAction({ plan, isCurrent, checkoutAvailable }) {
 }
 
 function renderProfile() {
-  elements.fullName.value = state.profile.fullName || "";
-  elements.username.value = state.profile.username || "";
-  elements.email.value = state.profile.email || "";
-  elements.website.value = state.profile.website || "";
-  elements.bio.value = state.profile.bio || "";
+  if (elements.fullName) {
+    elements.fullName.value = state.profile.fullName || "";
+  }
+  if (elements.username) {
+    elements.username.value = state.profile.username || "";
+  }
+  if (elements.email) {
+    elements.email.value = state.profile.email || currentUser?.email || "";
+  }
+  if (elements.website) {
+    elements.website.value = state.profile.website || "";
+  }
+  if (elements.bio) {
+    elements.bio.value = state.profile.bio || "";
+  }
 
-  const initials = getInitials(state.profile.fullName || state.profile.username || "LC");
-  elements.avatarPreview.textContent = initials;
+  const displayName = state.profile.fullName || state.profile.username || "Пользователь";
+  const displayEmail = state.profile.email || currentUser?.email || "-";
+  const roleBadge = isAdmin() ? "Администратор" : `Пользователь ${getCurrentPlan().label}`;
+  const initials = getInitials(state.profile.fullName || state.profile.username || displayEmail || "WI");
+
+  if (elements.avatarPreview) {
+    elements.avatarPreview.textContent = initials;
+  }
+  if (elements.profileDisplayName) {
+    elements.profileDisplayName.textContent = displayName;
+  }
+  if (elements.profileDisplayEmail) {
+    elements.profileDisplayEmail.textContent = displayEmail;
+  }
+  if (elements.profileRoleBadge) {
+    elements.profileRoleBadge.textContent = roleBadge;
+  }
+
+  if (elements.profileCurrentPlanName) {
+    elements.profileCurrentPlanName.textContent = getCurrentPlan().label;
+  }
+  if (elements.profileCurrentPlanPrice) {
+    elements.profileCurrentPlanPrice.textContent = getCurrentPlan().price;
+  }
+  if (elements.profilePlanFeatures) {
+    elements.profilePlanFeatures.innerHTML = getCurrentPlan().features
+      .map((feature) => `<li>${escapeHtml(feature)}</li>`)
+      .join("");
+  }
+
+  if (elements.notifyNews) {
+    elements.notifyNews.checked = Boolean(state.notifications.news);
+  }
+  if (elements.notifyTips) {
+    elements.notifyTips.checked = Boolean(state.notifications.tips);
+  }
+
+  setProfileTab(state.profileTab || "general", { persist: false });
 }
 
 function renderStats() {
+  if (!elements.statsGrid) {
+    return;
+  }
+
   const total = state.history.length;
   const currentMonth = getCurrentMonthUsage();
   const favoriteType = getFavoriteTypeLabel();
@@ -1409,6 +1668,9 @@ function renderAdminTab() {
   elements.adminTabButtons.forEach((button) => {
     button.classList.toggle("hidden", !show);
   });
+  if (elements.profileAdminAccessBtn) {
+    elements.profileAdminAccessBtn.classList.toggle("hidden", !show);
+  }
   const adminViewIsActive = document.getElementById("view-admin")?.classList.contains("active");
   if (!show && adminViewIsActive) {
     setActiveView("create");
@@ -1421,6 +1683,7 @@ function renderAdminPanel() {
   }
 
   renderAdminMetrics();
+  renderAdminRecentUsers();
   renderAdminUsers();
   renderAdminPayments();
   renderAdminLeads();
@@ -1434,25 +1697,17 @@ function renderAdminMetrics() {
   const data = adminState.overview;
   if (!data) {
     elements.adminMetricsGrid.innerHTML = `
-      <article class="stat-card"><p class="stat-label">Данные</p><p class="stat-value">-</p></article>
-      <article class="stat-card"><p class="stat-label">Загрузка</p><p class="stat-value">...</p></article>
-      <article class="stat-card"><p class="stat-label">Пользователи</p><p class="stat-value">-</p></article>
-      <article class="stat-card"><p class="stat-label">Выручка</p><p class="stat-value">-</p></article>
+      <article class="stat-card"><p class="stat-label">Всего пользователей</p><p class="stat-value">-</p></article>
+      <article class="stat-card"><p class="stat-label">Активные подписки (Pro/Plus)</p><p class="stat-value">-</p></article>
+      <article class="stat-card"><p class="stat-label">Выручка за месяц</p><p class="stat-value">-</p></article>
     `;
     return;
   }
 
   const cards = [
     { label: "Всего клиентов", value: String(data.users.totalUsers) },
-    { label: "Платные клиенты", value: String(data.users.paidUsers) },
-    { label: "Лиды (всего)", value: String(data.leads?.totalLeads || 0) },
-    { label: "Лиды за 30 дней", value: String(data.leads?.newLeads30d || 0) },
-    { label: "Выручка (месяц)", value: formatMoney(data.payments.revenueThisMonth) },
-    { label: "Выручка (всего)", value: formatMoney(data.payments.revenueTotal) },
-    { label: "Успешные платежи", value: String(data.payments.successfulPayments) },
-    { label: "Платежи в процессе", value: String(data.payments.processingPayments) },
-    { label: "Новые пользователи 30д", value: String(data.users.newUsers30d) },
-    { label: "Заблокированные", value: String(data.users.blockedUsers) }
+    { label: "Платные подписки (Pro/Plus)", value: String(data.users.paidUsers) },
+    { label: "Выручка за текущий месяц", value: formatMoney(data.payments.revenueThisMonth) }
   ];
 
   elements.adminMetricsGrid.innerHTML = cards
@@ -1462,6 +1717,41 @@ function renderAdminMetrics() {
         <p class="stat-value">${escapeHtml(card.value)}</p>
       </article>
     `)
+    .join("");
+}
+
+function renderAdminRecentUsers() {
+  if (!elements.adminRecentUsersBody) {
+    return;
+  }
+
+  const toTs = (value) => {
+    const ts = new Date(value).getTime();
+    return Number.isFinite(ts) ? ts : 0;
+  };
+
+  const rows = [...adminState.users]
+    .sort((a, b) => toTs(b.createdAt) - toTs(a.createdAt))
+    .slice(0, 8);
+
+  if (!rows.length) {
+    elements.adminRecentUsersBody.innerHTML = '<tr><td colspan="4">Пользователи не найдены.</td></tr>';
+    return;
+  }
+
+  elements.adminRecentUsersBody.innerHTML = rows
+    .map((user) => {
+      const name = user.profile?.fullName || user.profile?.username || "Без имени";
+      const plan = normalizePlanId(user.planId) || "free";
+      return `
+        <tr>
+          <td>${escapeHtml(name)}</td>
+          <td>${escapeHtml(user.email || "-")}</td>
+          <td>${escapeHtml(plan.toUpperCase())}</td>
+          <td>${escapeHtml(formatDate(user.createdAt, { dateStyle: "medium" }))}</td>
+        </tr>
+      `;
+    })
     .join("");
 }
 
@@ -1620,6 +1910,10 @@ function setActiveView(viewId) {
   elements.navViewButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.navView === viewId);
   });
+
+  if (viewId === "profile") {
+    setProfileTab(state.profileTab || "general", { persist: false });
+  }
 
   if (viewId === "admin" && isAdmin() && !adminState.overview) {
     void loadAdminData(false);
@@ -1915,6 +2209,10 @@ function loadState() {
       profile: {
         ...cloneDefaultState().profile,
         ...(parsed.profile || {})
+      },
+      notifications: {
+        ...cloneDefaultState().notifications,
+        ...(parsed.notifications || {})
       }
     };
 
@@ -1930,6 +2228,10 @@ function loadState() {
 
     if (safe.authMode !== "login" && safe.authMode !== "register") {
       safe.authMode = "login";
+    }
+
+    if (!["general", "security", "subscription", "notifications"].includes(safe.profileTab)) {
+      safe.profileTab = "general";
     }
 
     return safe;

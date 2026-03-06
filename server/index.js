@@ -408,6 +408,46 @@ app.patch("/api/profile", requireAuth, async (req, res) => {
   }
 });
 
+app.post("/api/auth/password", requireAuth, async (req, res) => {
+  const currentPassword = String(req.body.currentPassword || "");
+  const newPassword = String(req.body.newPassword || "");
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: "Укажите текущий и новый пароль." });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: "Новый пароль должен быть не короче 8 символов." });
+  }
+
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ error: "Новый пароль должен отличаться от текущего." });
+  }
+
+  try {
+    const valid = await bcrypt.compare(currentPassword, req.user.passwordHash || "");
+    if (!valid) {
+      return res.status(401).json({ error: "Текущий пароль введен неверно." });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const updated = await patchUserById(req.user.id, (user) => {
+      user.passwordHash = passwordHash;
+    });
+
+    if (!updated) {
+      return res.status(404).json({ error: "Пользователь не найден." });
+    }
+
+    const token = makeToken(updated);
+    setSessionCookie(req, res, token);
+    return res.json({ ok: true, token, user: updated });
+  } catch (error) {
+    console.error("[password-update]", error);
+    return res.status(500).json({ error: "Не удалось обновить пароль." });
+  }
+});
+
 app.get("/api/generations", requireAuth, async (req, res) => {
   const typeRaw = req.query.type == null ? "" : String(req.query.type);
   const type = typeRaw ? normalizeGenerationType(typeRaw) : null;

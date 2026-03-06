@@ -60,7 +60,6 @@
           <button class="mobile-nav-btn active" data-nav-view="create" type="button">New conversation</button>
           <button class="mobile-nav-btn" data-nav-view="history" type="button">History</button>
           <button class="mobile-nav-btn" data-nav-view="profile" type="button">Profile</button>
-          <button class="mobile-nav-btn" data-nav-view="plan" type="button">Subscription</button>
           <button id="mobileAdminTabBtn" class="mobile-nav-btn hidden" data-nav-view="admin" data-admin-tab type="button">Admin</button>
         </aside>
 
@@ -195,22 +194,171 @@
         </section>
 
         <section class="view" id="view-profile">
-          <article class="panel-card panel-profile">
-            <div class="panel-head">
-              <div>
-                <h2>Profile</h2>
-                <p class="panel-subtitle">Настройки аккаунта, доступ и история активности.</p>
+          <article class="panel-card panel-profile profile-shell">
+            <button id="profileBackBtn" class="back-link" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
+              <span>Назад</span>
+            </button>
+
+            <div class="profile-hero">
+              <div class="profile-avatar-wrap">
+                <div class="avatar-preview profile-avatar" id="avatarPreview">WI</div>
+                <button class="profile-avatar-overlay" type="button" aria-label="Update avatar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4H9.5l-1.4 2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.1l-1.4-2z"/><circle cx="12" cy="13" r="3"/></svg>
+                </button>
               </div>
-            </div>
-            <div id="authLoggedIn" class="stack">
-              <p id="authIdentity"></p>
-              <div class="row-btns">
-                <button id="profileSubscriptionBtn" class="mini-btn" type="button">Subscription</button>
-                <button id="logoutBtn" class="mini-btn danger" type="button">Logout</button>
+              <div class="profile-hero-info">
+                <h2 id="profileDisplayName">Пользователь</h2>
+                <p id="profileDisplayEmail">user@example.com</p>
+                <span id="profileRoleBadge" class="profile-role-badge">Пользователь</span>
               </div>
             </div>
 
-            <div id="authLoggedOut" class="stack hidden">
+            <div class="profile-layout">
+              <aside class="profile-nav">
+                <button class="profile-nav-btn active" type="button" data-profile-tab="general">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Общие данные</span>
+                </button>
+                <button class="profile-nav-btn" type="button" data-profile-tab="security">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 1 1 8 0v3"/></svg>
+                  <span>Безопасность</span>
+                </button>
+                <button class="profile-nav-btn" type="button" data-profile-tab="subscription">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg>
+                  <span>Подписка</span>
+                </button>
+                <button class="profile-nav-btn" type="button" data-profile-tab="notifications">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 0 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+                  <span>Уведомления</span>
+                </button>
+                <button id="profileAdminAccessBtn" class="profile-nav-btn hidden" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 8 4v5c0 5-3.4 8.7-8 9-4.6-.3-8-4-8-9V7l8-4z"/></svg>
+                  <span>Панель Администратора</span>
+                </button>
+                <button id="logoutBtn" class="profile-nav-btn danger" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+                  <span>Выйти</span>
+                </button>
+              </aside>
+
+              <div class="profile-content">
+                <section class="profile-tab-panel active" data-profile-panel="general">
+                  <div class="profile-panel-head">
+                    <h3>Личная информация</h3>
+                  </div>
+                  <p id="authIdentity" class="profile-auth-line"></p>
+                  <form id="profileForm" class="profile-form">
+                    <div class="profile-fields">
+                      <label class="field-block">
+                        <span>Полное имя</span>
+                        <input id="fullName" type="text" placeholder="Полное имя" />
+                      </label>
+                      <label class="field-block">
+                        <span>Имя пользователя</span>
+                        <input id="username" type="text" placeholder="Username" />
+                      </label>
+                    </div>
+                    <label class="field-block">
+                      <span>Email адрес</span>
+                      <input id="email" type="email" placeholder="Email" disabled />
+                    </label>
+                    <p class="profile-field-note">Email используется для входа и не может быть изменен.</p>
+                    <div class="hidden-controls" aria-hidden="true">
+                      <input id="website" type="url" placeholder="Website" />
+                      <textarea id="bio" rows="3" placeholder="Bio"></textarea>
+                    </div>
+                    <div class="profile-actions">
+                      <button type="submit" class="mini-btn profile-save-btn">Сохранить изменения</button>
+                    </div>
+                    <p id="profileMessage" class="message" aria-live="polite"></p>
+                  </form>
+                  <div id="statsGrid" class="stats-grid profile-stats-grid"></div>
+                </section>
+
+                <section class="profile-tab-panel" data-profile-panel="security">
+                  <div class="profile-panel-head">
+                    <h3>Смена пароля</h3>
+                  </div>
+                  <div class="profile-form">
+                    <label class="field-block">
+                      <span>Текущий пароль</span>
+                      <input id="securityCurrentPassword" type="password" placeholder="Текущий пароль" />
+                    </label>
+                    <label class="field-block">
+                      <span>Новый пароль</span>
+                      <input id="securityNewPassword" type="password" placeholder="Новый пароль" />
+                    </label>
+                    <label class="field-block">
+                      <span>Подтвердите новый пароль</span>
+                      <input id="securityConfirmPassword" type="password" placeholder="Подтверждение пароля" />
+                    </label>
+                    <div class="profile-actions">
+                      <button id="updatePasswordBtn" class="mini-btn" type="button">Обновить пароль</button>
+                    </div>
+                    <p id="securityMessage" class="message" aria-live="polite"></p>
+                  </div>
+                </section>
+
+                <section class="profile-tab-panel" data-profile-panel="subscription">
+                  <div class="profile-panel-head">
+                    <h3>Управление подпиской</h3>
+                  </div>
+                  <div class="subscription-summary">
+                    <div class="subscription-main">
+                      <div class="subscription-label">Текущий план</div>
+                      <div class="subscription-title" id="profileCurrentPlanName">Free</div>
+                      <div class="subscription-price" id="profileCurrentPlanPrice">0 RUB</div>
+                    </div>
+                    <div class="subscription-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7l8 4 8-4-8-4z"/><path d="m4 12 8 4 8-4"/><path d="m4 17 8 4 8-4"/></svg>
+                    </div>
+                  </div>
+                  <ul id="profilePlanFeatures" class="subscription-features"></ul>
+                  <div class="profile-actions row">
+                    <button id="profileSubscriptionBtn" class="mini-btn" type="button">Продлить подписку</button>
+                    <button id="profileCancelPlanBtn" class="mini-btn" type="button">Отменить</button>
+                  </div>
+                  <div id="plansGrid" class="plans-grid"></div>
+                  <p id="billingMessage" class="message" aria-live="polite"></p>
+                </section>
+
+                <section class="profile-tab-panel" data-profile-panel="notifications">
+                  <div class="profile-panel-head">
+                    <h3>Настройки уведомлений</h3>
+                  </div>
+                  <div class="profile-switches">
+                    <label class="switch-item">
+                      <div>
+                        <strong>Новости и обновления</strong>
+                        <p>Получать информацию о новых функциях</p>
+                      </div>
+                      <input id="notifyNews" type="checkbox" />
+                    </label>
+                    <label class="switch-item">
+                      <div>
+                        <strong>Советы и обучение</strong>
+                        <p>Полезные материалы по работе с ИИ</p>
+                      </div>
+                      <input id="notifyTips" type="checkbox" />
+                    </label>
+                    <label class="switch-item">
+                      <div>
+                        <strong>Системные уведомления</strong>
+                        <p>Оповещения о статусе подписки и лимитах</p>
+                      </div>
+                      <input id="notifySystem" type="checkbox" checked disabled />
+                    </label>
+                  </div>
+                  <div class="profile-actions">
+                    <button id="saveNotificationsBtn" class="mini-btn" type="button">Сохранить настройки</button>
+                  </div>
+                  <p id="notificationMessage" class="message" aria-live="polite"></p>
+                </section>
+              </div>
+            </div>
+
+            <div id="authLoggedOut" class="hidden">
               <div class="auth-mode-group">
                 <button type="button" class="auth-mode-btn active" data-auth-mode="login">Login</button>
                 <button type="button" class="auth-mode-btn" data-auth-mode="register">Register</button>
@@ -226,97 +374,103 @@
                 <p id="authMessage" class="message" aria-live="polite"></p>
               </form>
             </div>
-
-            <div class="avatar-preview" id="avatarPreview">WI</div>
-            <form id="profileForm" class="stack">
-              <input id="fullName" type="text" placeholder="Full name" />
-              <input id="username" type="text" placeholder="Username" />
-              <input id="email" type="email" placeholder="Email" />
-              <input id="website" type="url" placeholder="Website" />
-              <textarea id="bio" rows="3" placeholder="Bio"></textarea>
-              <button type="submit" class="mini-btn">Save profile</button>
-              <p id="profileMessage" class="message" aria-live="polite"></p>
-            </form>
-            <div id="statsGrid" class="stats-grid"></div>
-          </article>
-        </section>
-
-        <section class="view" id="view-plan">
-          <article class="panel-card panel-plan">
-            <div class="panel-head">
-              <div>
-                <h2>Plan</h2>
-                <p class="panel-subtitle">Выберите тариф под объём и формат вашего контента.</p>
-              </div>
-            </div>
-            <div id="plansGrid" class="plans-grid"></div>
-            <p id="billingMessage" class="message" aria-live="polite"></p>
+            <div id="authLoggedIn" class="hidden"></div>
           </article>
         </section>
 
         <section class="view" id="view-admin">
-          <article class="panel-card admin-card">
-            <div class="panel-head">
-              <div>
-                <h2>Admin</h2>
-                <p class="panel-subtitle">Клиенты, платежи, лиды и операционная аналитика.</p>
+          <article class="panel-card admin-card admin-shell">
+            <button id="adminBackBtn" class="back-link" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
+              <span>Назад</span>
+            </button>
+
+            <section class="admin-overview-card">
+              <div class="panel-head">
+                <div>
+                  <h2>Панель Администратора</h2>
+                  <p class="panel-subtitle">Статистика платформы и управление пользователями.</p>
+                </div>
+                <button id="adminRefreshBtn" class="mini-btn" type="button">Обновить</button>
               </div>
-              <button id="adminRefreshBtn" class="mini-btn" type="button">Refresh</button>
-            </div>
-            <div id="adminMetricsGrid" class="stats-grid"></div>
-            <div class="admin-controls">
-              <input id="adminUserSearch" type="search" placeholder="Search" />
-              <select id="adminPlanFilter"><option value="">All plans</option><option value="free">Free</option><option value="plus">Plus</option><option value="pro">Pro</option></select>
-              <select id="adminRoleFilter"><option value="">All roles</option><option value="user">User</option><option value="admin">Admin</option></select>
-              <select id="adminStatusFilter"><option value="">Any status</option><option value="active">active</option><option value="blocked">blocked</option></select>
-            </div>
-            <div class="table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Пользователь</th>
-                    <th>Роль</th>
-                    <th>План</th>
-                    <th>Статус</th>
-                    <th>Дата</th>
-                    <th>Действие</th>
-                  </tr>
-                </thead>
-                <tbody id="adminUsersBody"></tbody>
-              </table>
-            </div>
-            <select id="adminPaymentStatusFilter"><option value="">All statuses</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
-            <div class="table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Дата</th>
-                    <th>Клиент</th>
-                    <th>Тариф</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                    <th>Order ID</th>
-                  </tr>
-                </thead>
-                <tbody id="adminPaymentsBody"></tbody>
-              </table>
-            </div>
-            <select id="adminLeadStatusFilter"><option value="">All lead statuses</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
-            <div class="table-wrap">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Дата</th>
-                    <th>Контакт</th>
-                    <th>Компания</th>
-                    <th>Цель</th>
-                    <th>Статус</th>
-                    <th>Действие</th>
-                  </tr>
-                </thead>
-                <tbody id="adminLeadsBody"></tbody>
-              </table>
-            </div>
+
+              <div id="adminMetricsGrid" class="stats-grid admin-kpi-grid"></div>
+
+              <h3 class="admin-block-title">Последние регистрации</h3>
+              <div class="table-wrap">
+                <table class="admin-table admin-recent-table">
+                  <thead>
+                    <tr>
+                      <th>Пользователь</th>
+                      <th>Email</th>
+                      <th>Тариф</th>
+                      <th>Дата</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminRecentUsersBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <details class="admin-advanced-block" open>
+              <summary>Расширенное управление</summary>
+              <div class="admin-controls">
+                <input id="adminUserSearch" type="search" placeholder="Search" />
+                <select id="adminPlanFilter"><option value="">All plans</option><option value="free">Free</option><option value="plus">Plus</option><option value="pro">Pro</option></select>
+                <select id="adminRoleFilter"><option value="">All roles</option><option value="user">User</option><option value="admin">Admin</option></select>
+                <select id="adminStatusFilter"><option value="">Any status</option><option value="active">active</option><option value="blocked">blocked</option></select>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Пользователь</th>
+                      <th>Роль</th>
+                      <th>План</th>
+                      <th>Статус</th>
+                      <th>Дата</th>
+                      <th>Действие</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUsersBody"></tbody>
+                </table>
+              </div>
+
+              <select id="adminPaymentStatusFilter"><option value="">All statuses</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Клиент</th>
+                      <th>Тариф</th>
+                      <th>Сумма</th>
+                      <th>Статус</th>
+                      <th>Order ID</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminPaymentsBody"></tbody>
+                </table>
+              </div>
+
+              <select id="adminLeadStatusFilter"><option value="">All lead statuses</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>Контакт</th>
+                      <th>Компания</th>
+                      <th>Цель</th>
+                      <th>Статус</th>
+                      <th>Действие</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminLeadsBody"></tbody>
+                </table>
+              </div>
+            </details>
+
             <p id="adminMessage" class="message" aria-live="polite"></p>
           </article>
         </section>
