@@ -112,6 +112,8 @@ const elements = {
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
   quickActionCards: Array.from(document.querySelectorAll("[data-quick-type]")),
   quickSearchActionBtn: document.querySelector("[data-quick-action='search']"),
+  quickPresentationActionBtn: document.querySelector("[data-quick-action='presentation']"),
+  quickCodeActionBtn: document.querySelector("[data-quick-action='code']"),
   suggestChips: Array.from(document.querySelectorAll("[data-suggest]")),
   selectedTypeBadge: document.getElementById("selectedTypeBadge"),
   generatorForm: document.getElementById("generatorForm"),
@@ -223,6 +225,30 @@ function bindEvents() {
     elements.quickSearchActionBtn.addEventListener("click", () => {
       setSelectedType("text");
       elements.promptInput.focus();
+    });
+  }
+
+  if (elements.quickPresentationActionBtn) {
+    elements.quickPresentationActionBtn.addEventListener("click", () => {
+      setSelectedType("text");
+      if (!elements.promptInput.value.trim()) {
+        elements.promptInput.value = "Сделай структуру презентации на тему: ";
+        resizePromptInput();
+      }
+      elements.promptInput.focus();
+      elements.promptInput.setSelectionRange(elements.promptInput.value.length, elements.promptInput.value.length);
+    });
+  }
+
+  if (elements.quickCodeActionBtn) {
+    elements.quickCodeActionBtn.addEventListener("click", () => {
+      setSelectedType("text");
+      if (!elements.promptInput.value.trim()) {
+        elements.promptInput.value = "Напиши код для: ";
+        resizePromptInput();
+      }
+      elements.promptInput.focus();
+      elements.promptInput.setSelectionRange(elements.promptInput.value.length, elements.promptInput.value.length);
     });
   }
 
