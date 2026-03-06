@@ -103,17 +103,7 @@ const elements = {
   usageText: document.getElementById("usageText"),
   usageFill: document.getElementById("usageFill"),
   installAppBtn: document.getElementById("installAppBtn"),
-  menuToggleBtn: document.getElementById("menuToggleBtn"),
-  avatarMenuBtn: document.getElementById("avatarMenuBtn"),
-  menuCloseBtn: document.getElementById("menuCloseBtn"),
-  menuBackdrop: document.getElementById("menuBackdrop"),
-  sideMenu: document.getElementById("sideMenu"),
-  menuIdentity: document.getElementById("menuIdentity"),
-  menuViewButtons: Array.from(document.querySelectorAll("[data-menu-view]")),
-  menuHistoryButtons: Array.from(document.querySelectorAll("[data-menu-history]")),
-  menuLogoutBtn: document.getElementById("menuLogoutBtn"),
-  menuRefreshBillingBtn: document.getElementById("menuRefreshBillingBtn"),
-  planRefreshBillingBtn: document.getElementById("planRefreshBillingBtn"),
+  navViewButtons: Array.from(document.querySelectorAll("[data-nav-view]")),
   adminTabBtn: document.getElementById("adminTabBtn"),
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
@@ -157,7 +147,7 @@ const elements = {
   authIdentity: document.getElementById("authIdentity"),
   authRegisterOnly: document.querySelector(".auth-register-only"),
   logoutBtn: document.getElementById("logoutBtn"),
-  manageBillingBtn: document.getElementById("manageBillingBtn"),
+  profileSubscriptionBtn: document.getElementById("profileSubscriptionBtn"),
   billingMessage: document.getElementById("billingMessage"),
   adminRefreshBtn: document.getElementById("adminRefreshBtn"),
   adminMetricsGrid: document.getElementById("adminMetricsGrid"),
@@ -191,37 +181,10 @@ function init() {
 }
 
 function bindEvents() {
-  elements.menuViewButtons.forEach((button) => {
+  elements.navViewButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      setActiveView(button.dataset.menuView);
-      closeMenu();
+      setActiveView(button.dataset.navView);
     });
-  });
-
-  elements.menuHistoryButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      setHistoryFilter(button.dataset.menuHistory);
-      setActiveView("history");
-      closeMenu();
-    });
-  });
-
-  if (elements.menuToggleBtn) {
-    elements.menuToggleBtn.addEventListener("click", toggleMenu);
-  }
-  if (elements.avatarMenuBtn) {
-    elements.avatarMenuBtn.addEventListener("click", toggleMenu);
-  }
-  if (elements.menuCloseBtn) {
-    elements.menuCloseBtn.addEventListener("click", closeMenu);
-  }
-  if (elements.menuBackdrop) {
-    elements.menuBackdrop.addEventListener("click", closeMenu);
-  }
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeMenu();
-    }
   });
 
   elements.typeButtons.forEach((button) => {
@@ -266,10 +229,7 @@ function bindEvents() {
   elements.generatorForm.addEventListener("submit", onGenerate);
 
   elements.historySearch.addEventListener("input", renderHistoryList);
-  elements.historyFilter.addEventListener("change", () => {
-    syncHistoryMenuState();
-    renderHistoryList();
-  });
+  elements.historyFilter.addEventListener("change", renderHistoryList);
   elements.historyList.addEventListener("click", onHistoryAction);
 
   elements.clearHistoryBtn.addEventListener("click", () => {
@@ -306,24 +266,9 @@ function bindEvents() {
   elements.logoutBtn.addEventListener("click", () => {
     void onLogout();
   });
-  if (elements.menuLogoutBtn) {
-    elements.menuLogoutBtn.addEventListener("click", () => {
-      void onLogout();
-    });
-  }
-  elements.manageBillingBtn.addEventListener("click", () => {
-    void refreshBillingStatus();
+  elements.profileSubscriptionBtn.addEventListener("click", () => {
+    setActiveView("plan");
   });
-  if (elements.menuRefreshBillingBtn) {
-    elements.menuRefreshBillingBtn.addEventListener("click", () => {
-      void refreshBillingStatus();
-    });
-  }
-  if (elements.planRefreshBillingBtn) {
-    elements.planRefreshBillingBtn.addEventListener("click", () => {
-      void refreshBillingStatus();
-    });
-  }
   elements.installAppBtn.addEventListener("click", () => {
     void handleInstallClick();
   });
@@ -738,7 +683,6 @@ async function onAuthSubmit() {
 
     renderAll();
     setActiveView("create");
-    closeMenu();
 
     setMessage(
       elements.authMessage,
@@ -752,8 +696,6 @@ async function onAuthSubmit() {
 }
 
 async function onLogout() {
-  closeMenu();
-
   try {
     await apiRequest("/api/auth/logout", {
       method: "POST",
@@ -1089,7 +1031,7 @@ async function saveAdminLeadRow(leadId) {
 
 function renderAll() {
   renderTopBar();
-  renderMenu();
+  renderNavigation();
   renderAuthPanel();
   renderTypeButtons();
   renderLatestOutput();
@@ -1108,11 +1050,10 @@ function renderTopBar() {
     ? (currentUser.profile?.fullName || currentUser.profile?.username || currentUser.email || "Аккаунт")
     : "Гость";
 
-  elements.activePlanBadge.textContent = plan.label.toUpperCase();
-  elements.authStatusBadge.textContent = identity;
-  if (elements.menuIdentity) {
-    elements.menuIdentity.textContent = identity;
+  if (elements.activePlanBadge) {
+    elements.activePlanBadge.textContent = plan.label.toUpperCase();
   }
+  elements.authStatusBadge.textContent = identity;
 
   if (plan.limit === Infinity) {
     elements.usageText.textContent = `${used} / ∞ в этом месяце`;
@@ -1125,12 +1066,11 @@ function renderTopBar() {
   elements.usageFill.style.width = `${percent}%`;
 }
 
-function renderMenu() {
+function renderNavigation() {
   const activeView = elements.views.find((view) => view.classList.contains("active"))?.id.replace("view-", "") || "create";
-  elements.menuViewButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.menuView === activeView);
+  elements.navViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.navView === activeView);
   });
-  syncHistoryMenuState();
 }
 
 function renderAuthPanel() {
@@ -1639,62 +1579,19 @@ function setActiveView(viewId) {
     view.classList.toggle("active", view.id === targetId);
   });
 
-  elements.menuViewButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.menuView === viewId);
+  elements.navViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.navView === viewId);
   });
-
-  if (viewId === "history") {
-    syncHistoryMenuState();
-  }
 
   if (viewId === "admin" && isAdmin() && !adminState.overview) {
     void loadAdminData(false);
   }
 }
 
-function openMenu() {
-  if (!elements.sideMenu || !elements.menuBackdrop) {
-    return;
-  }
-  elements.sideMenu.classList.add("open");
-  elements.sideMenu.setAttribute("aria-hidden", "false");
-  elements.menuBackdrop.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeMenu() {
-  if (!elements.sideMenu || !elements.menuBackdrop) {
-    return;
-  }
-  elements.sideMenu.classList.remove("open");
-  elements.sideMenu.setAttribute("aria-hidden", "true");
-  elements.menuBackdrop.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
-function toggleMenu() {
-  if (!elements.sideMenu) {
-    return;
-  }
-  if (elements.sideMenu.classList.contains("open")) {
-    closeMenu();
-    return;
-  }
-  openMenu();
-}
-
 function setHistoryFilter(filter) {
   const normalized = CONTENT_TYPES[filter] ? filter : "all";
   elements.historyFilter.value = normalized;
-  syncHistoryMenuState();
   renderHistoryList();
-}
-
-function syncHistoryMenuState() {
-  const current = elements.historyFilter?.value || "all";
-  elements.menuHistoryButtons.forEach((button) => {
-    button.classList.toggle("active", (button.dataset.menuHistory || "all") === current);
-  });
 }
 
 function canGenerate(type) {

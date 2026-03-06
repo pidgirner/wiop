@@ -17,86 +17,13 @@
   </head>
   <body>
     <div class="app">
-      <div id="menuBackdrop" class="menu-backdrop hidden"></div>
-
-      <aside id="sideMenu" class="sidebar" aria-hidden="false">
-        <div class="sidebar-top">
-          <a class="logo" href="/app" aria-label="WIOP">
-            <img class="logo-icon" src="/icons/icon-192.png" alt="WIOP" />
-            <span class="logo-text">WIOP</span>
-          </a>
-          <button id="menuCloseBtn" class="new-chat-btn" type="button" title="New chat" aria-label="New chat">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-        </div>
-
-        <div class="sidebar-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <span>Search chats</span>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-section-label">Workspace</div>
-          <button class="chat-item active" data-menu-view="create" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>New conversation</span>
-          </button>
-          <button class="chat-item" data-menu-view="history" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5l3 3"/><circle cx="12" cy="12" r="9"/></svg>
-            <span>History</span>
-          </button>
-          <button class="chat-item" data-menu-view="profile" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Profile</span>
-          </button>
-          <button class="chat-item" data-menu-view="plan" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span>Subscription</span>
-          </button>
-          <button id="adminTabBtn" class="chat-item hidden" data-menu-view="admin" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M8 17v-6M12 17V7M16 17v-3"/></svg>
-            <span>Admin</span>
-          </button>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-section-label">History Categories</div>
-          <button class="chat-item menu-filter active" data-menu-history="all" type="button"><span>All</span></button>
-          <button class="chat-item menu-filter" data-menu-history="text" type="button"><span>Text</span></button>
-          <button class="chat-item menu-filter" data-menu-history="image" type="button"><span>Images</span></button>
-          <button class="chat-item menu-filter" data-menu-history="video" type="button"><span>Video</span></button>
-          <button class="chat-item menu-filter" data-menu-history="audio" type="button"><span>Audio</span></button>
-          <button class="chat-item menu-filter" data-menu-history="post" type="button"><span>Posts</span></button>
-        </div>
-
-        <div class="sidebar-bottom">
-          <div class="user-row">
-            <div class="user-avatar">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-            </div>
-            <div class="user-info">
-              <div id="menuIdentity" class="user-name">User</div>
-              <div class="user-plan" id="activePlanBadge">FREE</div>
-            </div>
-            <button id="menuToggleBtn" class="more" type="button" aria-label="Open menu">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-            </button>
-          </div>
-          <div class="sidebar-actions">
-            <button id="menuRefreshBillingBtn" class="ghost-btn" type="button">Refresh billing</button>
-            <button id="menuLogoutBtn" class="ghost-btn danger" type="button">Logout</button>
-          </div>
-        </div>
-      </aside>
-
       <main class="main">
         <div class="topbar">
           <div class="topbar-left">
-            <button id="avatarMenuBtn" class="mobile-menu-btn" type="button" aria-label="Open menu">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            </button>
+            <a class="logo top-logo" href="/app" aria-label="WIOP">
+              <img class="logo-icon" src="/icons/icon-192.png" alt="WIOP" />
+              <span class="logo-text">WIOP</span>
+            </a>
             <div class="toggle-group" role="tablist" aria-label="Mode">
               <button id="modeChatBtn" class="toggle-btn active" type="button" data-mode="chat">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -107,13 +34,19 @@
                 Voice
               </button>
             </div>
+            <div class="header-nav">
+              <button class="header-nav-btn active" data-nav-view="create" type="button">New conversation</button>
+              <button class="header-nav-btn" data-nav-view="history" type="button">History</button>
+              <button id="adminTabBtn" class="header-nav-btn hidden" data-nav-view="admin" type="button">Admin</button>
+            </div>
           </div>
 
           <div class="topbar-right">
-            <span id="authStatusBadge" class="meta-chip">Guest</span>
             <button id="installAppBtn" class="icon-btn hidden" type="button" title="Install App">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
             </button>
+            <button id="authStatusBadge" class="meta-chip profile-chip" data-nav-view="profile" type="button">Guest</button>
+            <span id="activePlanBadge" class="meta-chip hidden" aria-hidden="true">FREE</span>
             <div class="usage-mini">
               <span id="usageText">0 / 30</span>
               <div class="usage-track"><div id="usageFill" class="usage-fill"></div></div>
@@ -241,7 +174,7 @@
             <div id="authLoggedIn" class="stack">
               <p id="authIdentity"></p>
               <div class="row-btns">
-                <button id="manageBillingBtn" class="mini-btn" type="button">Refresh billing status</button>
+                <button id="profileSubscriptionBtn" class="mini-btn" type="button">Subscription</button>
                 <button id="logoutBtn" class="mini-btn danger" type="button">Logout</button>
               </div>
             </div>
@@ -281,7 +214,6 @@
           <article class="panel-card">
             <div class="panel-head">
               <h2>Plan</h2>
-              <button id="planRefreshBillingBtn" class="mini-btn" type="button">Check payment</button>
             </div>
             <div id="plansGrid" class="plans-grid"></div>
             <p id="billingMessage" class="message" aria-live="polite"></p>
