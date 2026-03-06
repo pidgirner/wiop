@@ -29,16 +29,6 @@
               <img class="logo-icon" src="/icons/icon-192.png" alt="WIOP" />
               <span class="logo-text">WIOP</span>
             </a>
-            <div class="toggle-group main-toggle" role="tablist" aria-label="Mode">
-              <button id="modeChatBtn" class="toggle-btn active" type="button" data-mode="chat">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Chat
-              </button>
-              <button id="modeVoiceBtn" class="toggle-btn" type="button" data-mode="voice">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-                Voice
-              </button>
-            </div>
             <div class="header-nav">
               <button class="header-nav-btn active" data-nav-view="create" type="button">New conversation</button>
               <button class="header-nav-btn" data-nav-view="history" type="button">History</button>
@@ -103,25 +93,29 @@
               </div>
 
               <div class="quick-actions">
-                <button class="action-card" data-quick-type="audio" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
-                  <span class="action-label">Voice Mode</span>
+                <button class="action-card" data-quick-action="search" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                  <span class="action-label">Поиск</span>
+                </button>
+                <button class="action-card" data-quick-type="text" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                  <span class="action-label">Текст</span>
                 </button>
                 <button class="action-card" data-quick-type="image" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/><path d="M13 6h5M15.5 6v5"/></svg>
-                  <span class="action-label">Create Images</span>
+                  <span class="action-label">Картинка</span>
                 </button>
                 <button class="action-card" data-quick-type="video" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  <span class="action-label">Edit Image</span>
+                  <span class="action-label">Видео</span>
+                </button>
+                <button class="action-card" data-quick-type="audio" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+                  <span class="action-label">Аудио</span>
                 </button>
                 <button class="action-card" data-quick-type="post" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-                  <span class="action-label">Analyze</span>
-                </button>
-                <button class="action-card" data-quick-type="text" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  <span class="action-label">DeepSearch</span>
+                  <span class="action-label">Пост</span>
                 </button>
               </div>
 

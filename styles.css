@@ -117,6 +117,10 @@ html, body {
   height: 26px;
 }
 
+.mobile-ghost-btn.active {
+  opacity: 1;
+}
+
 .topbar-left {
   display: flex;
   align-items: center;
@@ -284,6 +288,10 @@ button.meta-chip {
 
 .view.active {
   display: block;
+}
+
+.view:not(#view-create) {
+  padding: 14px;
 }
 
 .content {
@@ -575,7 +583,11 @@ button.meta-chip {
   padding: 18px;
   display: grid;
   gap: 12px;
-  background: #0b0b0b;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .panel-head {
@@ -612,12 +624,17 @@ input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
   color: #fff;
   padding: 10px;
   font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .auth-mode-group {
@@ -625,15 +642,15 @@ textarea {
 }
 
 .auth-mode-btn {
-  border: 1px solid var(--border2);
-  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
   color: #ccc;
-  border-radius: 10px;
+  border-radius: 12px;
   height: 34px;
 }
 
 .auth-mode-btn.active {
-  background: #242424;
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
 }
 
@@ -650,10 +667,12 @@ textarea {
 .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .stat-card {
-  border: 1px solid #2a2a2a;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
   padding: 10px;
-  background: #131313;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .stat-label { font-size: 11px; color: #888; }
@@ -662,17 +681,19 @@ textarea {
 .plans-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .plan-card {
-  border: 1px solid #2a2a2a;
-  border-radius: 14px;
-  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
   padding: 10px;
   display: grid;
   gap: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .plan-card.current {
-  border-color: #515151;
-  background: #1b1b1b;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .plan-card h3 { font-size: 16px; }
@@ -684,10 +705,10 @@ textarea {
 .ghost-btn,
 .primary-btn,
 .mini-btn {
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--border2);
-  background: #1a1a1a;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
   color: #d5d5d5;
   font: inherit;
   font-size: 13px;
@@ -695,11 +716,16 @@ textarea {
   cursor: pointer;
 }
 
-.primary-btn { background: #242424; color: #fff; }
+.primary-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
 
 .ghost-btn:hover,
 .primary-btn:hover,
-.mini-btn:hover { border-color: #3a3a3a; }
+.mini-btn:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
 
 .ghost-btn.danger,
 .mini-btn.danger { color: var(--danger); }
@@ -728,12 +754,14 @@ textarea {
 .admin-row-user span { color: #888; }
 
 .history-item {
-  background: #141414;
-  border: 1px solid #2a2a2a;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
   padding: 10px;
   display: grid;
   gap: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .history-item header {
@@ -791,6 +819,21 @@ textarea {
     display: none;
   }
 
+  .top-logo {
+    display: flex;
+    margin: 0;
+  }
+
+  .top-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .top-logo .logo-text {
+    font-size: 17px;
+  }
+
   .mobile-hamburger,
   .mobile-ghost-btn {
     display: flex;
@@ -801,31 +844,6 @@ textarea {
 
   .mobile-hamburger { left: 20px; }
   .mobile-ghost-btn { right: 20px; }
-
-  .main-toggle {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  .toggle-btn {
-    gap: 6px;
-    padding: 7px 16px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.45);
-  }
-
-  .toggle-btn svg {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-  }
-
-  .toggle-btn.active {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-  }
 
   .mobile-nav-backdrop {
     display: block;
@@ -1047,5 +1065,14 @@ textarea {
 
   #view-create .input-hint {
     display: none;
+  }
+
+  .view:not(#view-create) {
+    padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+    height: calc(100dvh - 60px);
+  }
+
+  .view:not(#view-create) .panel-card {
+    border-radius: 24px;
   }
 }

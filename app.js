@@ -111,9 +111,8 @@ const elements = {
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
   quickActionCards: Array.from(document.querySelectorAll("[data-quick-type]")),
+  quickSearchActionBtn: document.querySelector("[data-quick-action='search']"),
   suggestChips: Array.from(document.querySelectorAll("[data-suggest]")),
-  modeChatBtn: document.getElementById("modeChatBtn"),
-  modeVoiceBtn: document.getElementById("modeVoiceBtn"),
   selectedTypeBadge: document.getElementById("selectedTypeBadge"),
   generatorForm: document.getElementById("generatorForm"),
   generateSubmitBtn: document.querySelector("#generatorForm button[type='submit']"),
@@ -220,14 +219,10 @@ function bindEvents() {
     });
   });
 
-  if (elements.modeChatBtn) {
-    elements.modeChatBtn.addEventListener("click", () => {
+  if (elements.quickSearchActionBtn) {
+    elements.quickSearchActionBtn.addEventListener("click", () => {
       setSelectedType("text");
-    });
-  }
-  if (elements.modeVoiceBtn) {
-    elements.modeVoiceBtn.addEventListener("click", () => {
-      setSelectedType("audio");
+      elements.promptInput.focus();
     });
   }
 
@@ -1144,21 +1139,15 @@ function renderTypeButtons() {
     card.title = allowed ? "" : `Недоступно на тарифе ${plan.label}.`;
   });
 
-  if (elements.modeChatBtn && elements.modeVoiceBtn) {
-    const isVoice = selected === "audio";
-    elements.modeVoiceBtn.classList.toggle("active", isVoice);
-    elements.modeChatBtn.classList.toggle("active", !isVoice);
-  }
-
   if (elements.selectedTypeBadge) {
     const badgeMap = {
-      text: "Text",
-      image: "Image",
-      video: "Video",
-      audio: "Voice",
-      post: "Post"
+      text: "Текст",
+      image: "Картинка",
+      video: "Видео",
+      audio: "Аудио",
+      post: "Пост"
     };
-    elements.selectedTypeBadge.textContent = badgeMap[selected] || "Text";
+    elements.selectedTypeBadge.textContent = badgeMap[selected] || "Текст";
   }
 }
 
