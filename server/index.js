@@ -20,14 +20,26 @@ const GOOGLE_SITE_VERIFICATION = String(process.env.GOOGLE_SITE_VERIFICATION || 
 const YANDEX_VERIFICATION = String(process.env.YANDEX_VERIFICATION || "").trim();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-const OPENAI_API_BASE = String(process.env.OPENAI_API_BASE || "https://api.openai.com/v1").replace(/\/+$/, "");
-const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || "").trim();
-const OPENAI_MODEL = String(process.env.OPENAI_MODEL || "gpt-4o-mini").trim();
-const OPENAI_TEMPERATURE = Number.isFinite(Number(process.env.OPENAI_TEMPERATURE))
-  ? Math.max(0, Math.min(1.5, Number(process.env.OPENAI_TEMPERATURE)))
+const OPENROUTER_API_BASE = String(process.env.OPENROUTER_API_BASE || process.env.OPENAI_API_BASE || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
+const OPENROUTER_SITE_URL = String(process.env.OPENROUTER_SITE_URL || CLIENT_URL).trim();
+const OPENROUTER_APP_NAME = String(process.env.OPENROUTER_APP_NAME || "Liquid Content Studio").trim();
+const OPENROUTER_DEFAULT_API_KEY = String(process.env.OPENROUTER_DEFAULT_API_KEY || process.env.OPENAI_API_KEY || "").trim();
+const OPENROUTER_DEFAULT_MODEL = String(process.env.OPENROUTER_DEFAULT_MODEL || process.env.OPENAI_MODEL || "openai/gpt-4o-mini").trim();
+const OPENROUTER_TEXT_API_KEY = String(process.env.OPENROUTER_TEXT_API_KEY || "").trim();
+const OPENROUTER_TEXT_MODEL = String(process.env.OPENROUTER_TEXT_MODEL || "").trim();
+const OPENROUTER_IMAGE_API_KEY = String(process.env.OPENROUTER_IMAGE_API_KEY || "").trim();
+const OPENROUTER_IMAGE_MODEL = String(process.env.OPENROUTER_IMAGE_MODEL || "").trim();
+const OPENROUTER_VIDEO_API_KEY = String(process.env.OPENROUTER_VIDEO_API_KEY || "").trim();
+const OPENROUTER_VIDEO_MODEL = String(process.env.OPENROUTER_VIDEO_MODEL || "").trim();
+const OPENROUTER_AUDIO_API_KEY = String(process.env.OPENROUTER_AUDIO_API_KEY || "").trim();
+const OPENROUTER_AUDIO_MODEL = String(process.env.OPENROUTER_AUDIO_MODEL || "").trim();
+const OPENROUTER_POST_API_KEY = String(process.env.OPENROUTER_POST_API_KEY || "").trim();
+const OPENROUTER_POST_MODEL = String(process.env.OPENROUTER_POST_MODEL || "").trim();
+const OPENROUTER_TEMPERATURE = Number.isFinite(Number(process.env.OPENROUTER_TEMPERATURE || process.env.OPENAI_TEMPERATURE))
+  ? Math.max(0, Math.min(1.5, Number(process.env.OPENROUTER_TEMPERATURE || process.env.OPENAI_TEMPERATURE)))
   : 0.7;
-const OPENAI_MAX_TOKENS = Number.isFinite(Number(process.env.OPENAI_MAX_TOKENS))
-  ? Math.max(128, Math.min(4096, Number.parseInt(process.env.OPENAI_MAX_TOKENS, 10)))
+const OPENROUTER_MAX_TOKENS = Number.isFinite(Number(process.env.OPENROUTER_MAX_TOKENS || process.env.OPENAI_MAX_TOKENS))
+  ? Math.max(128, Math.min(4096, Number.parseInt(String(process.env.OPENROUTER_MAX_TOKENS || process.env.OPENAI_MAX_TOKENS), 10)))
   : 900;
 const SESSION_COOKIE_NAME = "lcs_session";
 const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -435,8 +447,8 @@ app.post("/api/generations", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "Промпт слишком длинный (максимум 4000 символов)." });
   }
 
-  if (!isAiGeneratorReady()) {
-    return res.status(503).json({ error: "AI генератор не настроен на сервере. Добавьте OPENAI_API_KEY." });
+  if (!isAiGeneratorReady(type)) {
+    return res.status(503).json({ error: buildAiConfigErrorMessage(type) });
   }
 
   const planId = normalizePlanId(req.user.planId) || "free";
@@ -471,7 +483,7 @@ app.post("/api/generations", requireAuth, async (req, res) => {
       platform,
       title: generated.title,
       output: generated.output,
-      model: generated.model || OPENAI_MODEL,
+      model: generated.model || resolveAiConfig(type).model,
       metadata: generated.metadata
     });
 
@@ -1454,7 +1466,7 @@ async function createGenerationRecord(payload) {
     platform: clampText(payload.platform || "", 80),
     title: clampText(payload.title || "", 200),
     output: clampText(payload.output || "", 12000),
-    model: clampText(payload.model || OPENAI_MODEL, 120),
+    model: clampText(payload.model || OPENROUTER_DEFAULT_MODEL, 120),
     status: "completed",
     errorText: null,
     metadata: payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {},
@@ -1476,7 +1488,7 @@ async function createGenerationRecord(payload) {
       error_text: null,
       metadata: {
         ...(safe.metadata || {}),
-        provider: "openai",
+        provider: "openrouter",
         plan_id: payload.planId || null
       },
       created_at: safe.createdAt
@@ -1560,8 +1572,9 @@ async function removeUserGeneration(userId, generationId) {
 }
 
 async function generateWithAi({ type, prompt, tone, platform }) {
-  if (!isAiGeneratorReady()) {
-    throw createHttpError(503, "AI генератор не настроен. Добавьте OPENAI_API_KEY.");
+  const aiConfig = resolveAiConfig(type);
+  if (!aiConfig.ready) {
+    throw createHttpError(503, buildAiConfigErrorMessage(type));
   }
 
   const system = buildGenerationSystemPrompt();
@@ -1577,17 +1590,14 @@ async function generateWithAi({ type, prompt, tone, platform }) {
 
   let response;
   try {
-    response = await fetch(`${OPENAI_API_BASE}/chat/completions`, {
+    response = await fetch(`${OPENROUTER_API_BASE}/chat/completions`, {
       method: "POST",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`
-      },
+      headers: buildAiRequestHeaders(aiConfig.apiKey),
       body: JSON.stringify({
-        model: OPENAI_MODEL,
-        temperature: OPENAI_TEMPERATURE,
-        max_tokens: OPENAI_MAX_TOKENS,
+        model: aiConfig.model,
+        temperature: OPENROUTER_TEMPERATURE,
+        max_tokens: OPENROUTER_MAX_TOKENS,
         messages: [
           { role: "system", content: system },
           { role: "user", content: userPrompt }
@@ -1612,10 +1622,10 @@ async function generateWithAi({ type, prompt, tone, platform }) {
   }
 
   if (!response.ok) {
-    throw createHttpError(mapProviderStatusToHttp(response.status), parseOpenAiError(payload, response.status));
+    throw createHttpError(mapProviderStatusToHttp(response.status), parseAiProviderError(payload, response.status));
   }
 
-  const outputText = extractTextFromOpenAi(payload);
+  const outputText = extractTextFromAiResponse(payload);
   if (!outputText) {
     throw createHttpError(502, "AI провайдер вернул пустой ответ.");
   }
@@ -1623,10 +1633,11 @@ async function generateWithAi({ type, prompt, tone, platform }) {
   const parsed = parseAiGenerationOutput(outputText, type, platform);
   return {
     ...parsed,
-    model: clampText(String(payload?.model || OPENAI_MODEL), 120),
+    model: clampText(String(payload?.model || aiConfig.model), 120),
     metadata: {
-      provider: "openai",
-      temperature: OPENAI_TEMPERATURE
+      provider: "openrouter",
+      temperature: OPENROUTER_TEMPERATURE,
+      route_type: type
     }
   };
 }
@@ -1755,7 +1766,7 @@ function toContentTypeLabel(type) {
   return map[type] || "Контент";
 }
 
-function extractTextFromOpenAi(payload) {
+function extractTextFromAiResponse(payload) {
   const direct = payload?.choices?.[0]?.message?.content;
   if (typeof direct === "string") {
     return direct.trim();
@@ -1786,10 +1797,10 @@ function extractTextFromOpenAi(payload) {
   return "";
 }
 
-function parseOpenAiError(payload, status) {
+function parseAiProviderError(payload, status) {
   const detail = String(payload?.error?.message || "").trim();
   if (status === 401 || status === 403) {
-    return "OPENAI_API_KEY недействителен или не имеет доступа к модели.";
+    return "Ключ OpenRouter недействителен или не имеет доступа к модели.";
   }
   if (status === 429) {
     return "Лимит запросов к AI провайдеру достигнут. Повторите попытку позже.";
@@ -1822,8 +1833,54 @@ function startOfCurrentMonthUtcIso() {
   return start.toISOString();
 }
 
-function isAiGeneratorReady() {
-  return Boolean(OPENAI_API_KEY && OPENAI_MODEL);
+function isAiGeneratorReady(type) {
+  return resolveAiConfig(type).ready;
+}
+
+function buildAiRequestHeaders(apiKey) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`
+  };
+
+  if (OPENROUTER_SITE_URL) {
+    headers["HTTP-Referer"] = OPENROUTER_SITE_URL;
+  }
+  if (OPENROUTER_APP_NAME) {
+    headers["X-Title"] = OPENROUTER_APP_NAME;
+  }
+
+  return headers;
+}
+
+function resolveAiConfig(type) {
+  const normalizedType = normalizeGenerationType(type);
+  const sectionMap = {
+    text: { apiKey: OPENROUTER_TEXT_API_KEY, model: OPENROUTER_TEXT_MODEL },
+    image: { apiKey: OPENROUTER_IMAGE_API_KEY, model: OPENROUTER_IMAGE_MODEL },
+    video: { apiKey: OPENROUTER_VIDEO_API_KEY, model: OPENROUTER_VIDEO_MODEL },
+    audio: { apiKey: OPENROUTER_AUDIO_API_KEY, model: OPENROUTER_AUDIO_MODEL },
+    post: { apiKey: OPENROUTER_POST_API_KEY, model: OPENROUTER_POST_MODEL }
+  };
+
+  const section = normalizedType ? sectionMap[normalizedType] : null;
+  const apiKey = String(section?.apiKey || OPENROUTER_DEFAULT_API_KEY || "").trim();
+  const model = String(section?.model || OPENROUTER_DEFAULT_MODEL || "").trim();
+
+  return {
+    type: normalizedType || "text",
+    apiKey,
+    model,
+    ready: Boolean(apiKey && model)
+  };
+}
+
+function buildAiConfigErrorMessage(type) {
+  const section = String(type || "").toUpperCase();
+  if (section) {
+    return `OpenRouter не настроен для раздела "${section}". Добавьте OPENROUTER_${section}_API_KEY и OPENROUTER_${section}_MODEL или заполните OPENROUTER_DEFAULT_API_KEY/OPENROUTER_DEFAULT_MODEL.`;
+  }
+  return "OpenRouter не настроен. Заполните OPENROUTER_DEFAULT_API_KEY и OPENROUTER_DEFAULT_MODEL.";
 }
 
 function createHttpError(status, message) {

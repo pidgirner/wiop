@@ -103,8 +103,16 @@ const elements = {
   usageText: document.getElementById("usageText"),
   usageFill: document.getElementById("usageFill"),
   installAppBtn: document.getElementById("installAppBtn"),
-  tabbar: document.querySelector(".tabbar"),
-  tabButtons: Array.from(document.querySelectorAll(".tab-btn")),
+  menuToggleBtn: document.getElementById("menuToggleBtn"),
+  menuCloseBtn: document.getElementById("menuCloseBtn"),
+  menuBackdrop: document.getElementById("menuBackdrop"),
+  sideMenu: document.getElementById("sideMenu"),
+  menuIdentity: document.getElementById("menuIdentity"),
+  menuViewButtons: Array.from(document.querySelectorAll("[data-menu-view]")),
+  menuHistoryButtons: Array.from(document.querySelectorAll("[data-menu-history]")),
+  menuLogoutBtn: document.getElementById("menuLogoutBtn"),
+  menuRefreshBillingBtn: document.getElementById("menuRefreshBillingBtn"),
+  planRefreshBillingBtn: document.getElementById("planRefreshBillingBtn"),
   adminTabBtn: document.getElementById("adminTabBtn"),
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
@@ -176,8 +184,34 @@ function init() {
 }
 
 function bindEvents() {
-  elements.tabButtons.forEach((button) => {
-    button.addEventListener("click", () => setActiveView(button.dataset.tab));
+  elements.menuViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setActiveView(button.dataset.menuView);
+      closeMenu();
+    });
+  });
+
+  elements.menuHistoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setHistoryFilter(button.dataset.menuHistory);
+      setActiveView("history");
+      closeMenu();
+    });
+  });
+
+  if (elements.menuToggleBtn) {
+    elements.menuToggleBtn.addEventListener("click", toggleMenu);
+  }
+  if (elements.menuCloseBtn) {
+    elements.menuCloseBtn.addEventListener("click", closeMenu);
+  }
+  if (elements.menuBackdrop) {
+    elements.menuBackdrop.addEventListener("click", closeMenu);
+  }
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMenu();
+    }
   });
 
   elements.typeButtons.forEach((button) => {
@@ -203,7 +237,10 @@ function bindEvents() {
   elements.generatorForm.addEventListener("submit", onGenerate);
 
   elements.historySearch.addEventListener("input", renderHistoryList);
-  elements.historyFilter.addEventListener("change", renderHistoryList);
+  elements.historyFilter.addEventListener("change", () => {
+    syncHistoryMenuState();
+    renderHistoryList();
+  });
   elements.historyList.addEventListener("click", onHistoryAction);
 
   elements.clearHistoryBtn.addEventListener("click", () => {
@@ -240,9 +277,24 @@ function bindEvents() {
   elements.logoutBtn.addEventListener("click", () => {
     void onLogout();
   });
+  if (elements.menuLogoutBtn) {
+    elements.menuLogoutBtn.addEventListener("click", () => {
+      void onLogout();
+    });
+  }
   elements.manageBillingBtn.addEventListener("click", () => {
     void refreshBillingStatus();
   });
+  if (elements.menuRefreshBillingBtn) {
+    elements.menuRefreshBillingBtn.addEventListener("click", () => {
+      void refreshBillingStatus();
+    });
+  }
+  if (elements.planRefreshBillingBtn) {
+    elements.planRefreshBillingBtn.addEventListener("click", () => {
+      void refreshBillingStatus();
+    });
+  }
   elements.installAppBtn.addEventListener("click", () => {
     void handleInstallClick();
   });
@@ -345,7 +397,7 @@ async function bootstrap() {
 function applyViewFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const view = params.get("view");
-  const allowed = new Set(["create", "history", "profile"]);
+  const allowed = new Set(["create", "history", "profile", "plan"]);
   if (isAdmin()) {
     allowed.add("admin");
   }
@@ -517,16 +569,16 @@ async function handleCheckoutReturn() {
 
   if (checkout === "cancel") {
     setMessage(elements.billingMessage, "Оплата отменена или не прошла.", "error");
-    setActiveView("profile");
+    setActiveView("plan");
   }
 
   if (checkout === "success") {
     if (!invId) {
       setMessage(elements.billingMessage, "Оплата завершена, но inv_id не найден.", "error");
-      setActiveView("profile");
+      setActiveView("plan");
     } else if (!state.authToken) {
       setMessage(elements.billingMessage, "Войдите в аккаунт, чтобы синхронизировать оплату.", "error");
-      setActiveView("profile");
+      setActiveView("plan");
     } else {
       await pollPaymentResult(invId);
     }
@@ -554,13 +606,13 @@ async function pollPaymentResult(invId) {
         await refreshCurrentUser();
         renderAll();
         setMessage(elements.billingMessage, "Платеж подтвержден. Подписка активирована.", "success");
-        setActiveView("profile");
+        setActiveView("plan");
         return;
       }
 
       if (PAYMENT_FAIL_STATUSES.has(status)) {
         setMessage(elements.billingMessage, "Платеж отклонен. Попробуйте снова.", "error");
-        setActiveView("profile");
+        setActiveView("plan");
         return;
       }
     } catch (_error) {
@@ -577,7 +629,7 @@ async function pollPaymentResult(invId) {
     "Платеж в обработке. Статус обновится автоматически после postback.",
     "error"
   );
-  setActiveView("profile");
+  setActiveView("plan");
 }
 
 async function onAuthSubmit() {
@@ -626,6 +678,8 @@ async function onAuthSubmit() {
     }
 
     renderAll();
+    setActiveView("create");
+    closeMenu();
 
     setMessage(
       elements.authMessage,
@@ -639,6 +693,8 @@ async function onAuthSubmit() {
 }
 
 async function onLogout() {
+  closeMenu();
+
   try {
     await apiRequest("/api/auth/logout", {
       method: "POST",
@@ -737,7 +793,7 @@ async function handlePlanAction(action, planId) {
 
 async function startCheckout(planId) {
   if (!currentUser) {
-    setActiveView("profile");
+    setActiveView("plan");
     setMessage(elements.authMessage, "Сначала войдите в аккаунт.", "error");
     return;
   }
@@ -756,7 +812,7 @@ async function startCheckout(planId) {
     window.location.href = data.url;
   } catch (error) {
     setMessage(elements.billingMessage, error.message, "error");
-    setActiveView("profile");
+    setActiveView("plan");
   }
 }
 
@@ -974,6 +1030,7 @@ async function saveAdminLeadRow(leadId) {
 
 function renderAll() {
   renderTopBar();
+  renderMenu();
   renderAuthPanel();
   renderTypeButtons();
   renderLatestOutput();
@@ -988,11 +1045,15 @@ function renderAll() {
 function renderTopBar() {
   const plan = getCurrentPlan();
   const used = getCurrentMonthUsage();
+  const identity = currentUser
+    ? (currentUser.profile?.fullName || currentUser.profile?.username || currentUser.email || "Аккаунт")
+    : "Гость";
 
   elements.activePlanBadge.textContent = plan.label.toUpperCase();
-  elements.authStatusBadge.textContent = currentUser
-    ? (currentUser.profile?.username || currentUser.email || "Аккаунт")
-    : "Гость";
+  elements.authStatusBadge.textContent = identity;
+  if (elements.menuIdentity) {
+    elements.menuIdentity.textContent = identity;
+  }
 
   if (plan.limit === Infinity) {
     elements.usageText.textContent = `${used} / ∞ в этом месяце`;
@@ -1003,6 +1064,14 @@ function renderTopBar() {
   const percent = Math.min(100, Math.round((used / plan.limit) * 100));
   elements.usageText.textContent = `${used} / ${plan.limit} в этом месяце`;
   elements.usageFill.style.width = `${percent}%`;
+}
+
+function renderMenu() {
+  const activeView = elements.views.find((view) => view.classList.contains("active"))?.id.replace("view-", "") || "create";
+  elements.menuViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.menuView === activeView);
+  });
+  syncHistoryMenuState();
 }
 
 function renderAuthPanel() {
@@ -1051,7 +1120,7 @@ function renderLatestOutput() {
   const latest = getLatestItem();
   if (!latest) {
     elements.latestOutput.classList.add("empty");
-    elements.latestOutput.innerHTML = "<p>Пока нет генераций. Заполните форму слева.</p>";
+    elements.latestOutput.innerHTML = "<p>Пока нет генераций. Введите запрос ниже и нажмите «Генерировать».</p>";
     return;
   }
 
@@ -1277,9 +1346,7 @@ function renderStats() {
 function renderAdminTab() {
   const show = isAdmin();
   elements.adminTabBtn.classList.toggle("hidden", !show);
-  elements.tabbar.classList.toggle("admin-enabled", show);
-
-  const adminViewIsActive = elements.adminTabBtn.classList.contains("active");
+  const adminViewIsActive = document.getElementById("view-admin")?.classList.contains("active");
   if (!show && adminViewIsActive) {
     setActiveView("create");
   }
@@ -1469,17 +1536,80 @@ function renderAdminLeads() {
 }
 
 function setActiveView(viewId) {
-  elements.tabButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.tab === viewId);
-  });
+  if (!viewId) {
+    return;
+  }
+
+  if (viewId === "admin" && !isAdmin()) {
+    viewId = "create";
+  }
+
+  const targetId = `view-${viewId}`;
+  const hasTarget = elements.views.some((view) => view.id === targetId);
+  if (!hasTarget) {
+    return;
+  }
 
   elements.views.forEach((view) => {
-    view.classList.toggle("active", view.id === `view-${viewId}`);
+    view.classList.toggle("active", view.id === targetId);
   });
+
+  elements.menuViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.menuView === viewId);
+  });
+
+  if (viewId === "history") {
+    syncHistoryMenuState();
+  }
 
   if (viewId === "admin" && isAdmin() && !adminState.overview) {
     void loadAdminData(false);
   }
+}
+
+function openMenu() {
+  if (!elements.sideMenu || !elements.menuBackdrop) {
+    return;
+  }
+  elements.sideMenu.classList.add("open");
+  elements.sideMenu.setAttribute("aria-hidden", "false");
+  elements.menuBackdrop.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeMenu() {
+  if (!elements.sideMenu || !elements.menuBackdrop) {
+    return;
+  }
+  elements.sideMenu.classList.remove("open");
+  elements.sideMenu.setAttribute("aria-hidden", "true");
+  elements.menuBackdrop.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function toggleMenu() {
+  if (!elements.sideMenu) {
+    return;
+  }
+  if (elements.sideMenu.classList.contains("open")) {
+    closeMenu();
+    return;
+  }
+  openMenu();
+}
+
+function setHistoryFilter(filter) {
+  const normalized = CONTENT_TYPES[filter] ? filter : "all";
+  elements.historyFilter.value = normalized;
+  syncHistoryMenuState();
+  renderHistoryList();
+}
+
+function syncHistoryMenuState() {
+  const current = elements.historyFilter?.value || "all";
+  elements.menuHistoryButtons.forEach((button) => {
+    button.classList.toggle("active", (button.dataset.menuHistory || "all") === current);
+  });
 }
 
 function canGenerate(type) {

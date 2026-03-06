@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#eaf6ff" />
+    <meta name="theme-color" content="#080a10" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Liquid Studio" />
     <title>Liquid Content Studio</title>
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -21,100 +21,117 @@
     <div class="bg-orb orb-3"></div>
 
     <div class="app-shell">
-      <header class="topbar glass-panel">
-        <div>
-          <p class="eyebrow">AI Creator App</p>
-          <h1>Liquid Content Studio</h1>
+      <header class="chat-topbar glass-panel">
+        <button id="menuToggleBtn" class="icon-btn" type="button" aria-label="Открыть меню">☰</button>
+
+        <div class="mode-switch glass-lite" role="tablist" aria-label="Режимы">
+          <button id="modeChatBtn" class="mode-btn active" type="button">Chat</button>
+          <button id="modeVoiceBtn" class="mode-btn" type="button" disabled>Voice</button>
         </div>
-        <div class="topbar-meta">
+
+        <div class="topbar-right">
           <span id="activePlanBadge" class="plan-badge">FREE</span>
           <span id="authStatusBadge" class="auth-pill">Гость</span>
-          <button id="installAppBtn" class="ghost-btn install-btn hidden" type="button">Установить App</button>
-          <div class="usage-block">
-            <span id="usageText">0 / 30 в этом месяце</span>
-            <div class="usage-track">
-              <div id="usageFill" class="usage-fill"></div>
-            </div>
-          </div>
+          <button id="installAppBtn" class="ghost-btn install-btn hidden" type="button">Установить</button>
         </div>
       </header>
 
-      <nav class="tabbar glass-panel" aria-label="Разделы">
-        <button class="tab-btn active" data-tab="create">Создание</button>
-        <button class="tab-btn" data-tab="history">История</button>
-        <button class="tab-btn" data-tab="profile">Профиль</button>
-        <button id="adminTabBtn" class="tab-btn hidden" data-tab="admin">Админ</button>
-      </nav>
+      <div class="usage-wrap glass-lite">
+        <span id="usageText">0 / 30 в этом месяце</span>
+        <div class="usage-track">
+          <div id="usageFill" class="usage-fill"></div>
+        </div>
+      </div>
 
-      <main>
+      <div id="menuBackdrop" class="menu-backdrop hidden"></div>
+      <aside id="sideMenu" class="side-menu glass-panel" aria-hidden="true">
+        <div class="side-head">
+          <div>
+            <p class="eyebrow">Workspace</p>
+            <p id="menuIdentity" class="side-identity">Аккаунт</p>
+          </div>
+          <button id="menuCloseBtn" class="icon-btn small" type="button" aria-label="Закрыть меню">✕</button>
+        </div>
+
+        <div class="menu-group">
+          <button class="menu-link active" data-menu-view="create" type="button">Чат</button>
+          <button class="menu-link" data-menu-view="profile" type="button">Профиль</button>
+          <button class="menu-link" data-menu-view="plan" type="button">Тариф</button>
+          <button id="adminTabBtn" class="menu-link hidden" data-menu-view="admin" type="button">Админ</button>
+        </div>
+
+        <div class="menu-group">
+          <p class="menu-label">История</p>
+          <button class="menu-filter active" data-menu-history="all" type="button">Все</button>
+          <button class="menu-filter" data-menu-history="text" type="button">Тексты</button>
+          <button class="menu-filter" data-menu-history="image" type="button">Картинки</button>
+          <button class="menu-filter" data-menu-history="video" type="button">Видео</button>
+          <button class="menu-filter" data-menu-history="audio" type="button">Аудио</button>
+          <button class="menu-filter" data-menu-history="post" type="button">Посты</button>
+        </div>
+
+        <div class="menu-actions">
+          <button id="menuRefreshBillingBtn" class="ghost-btn" type="button">Обновить оплату</button>
+          <button id="menuLogoutBtn" class="ghost-btn danger" type="button">Выйти</button>
+        </div>
+      </aside>
+
+      <main class="main-stage">
         <section class="view active" id="view-create">
-          <div class="grid two-col">
-            <article class="glass-panel panel">
-              <div class="panel-head">
-                <h2>Новая генерация</h2>
-                <p>Фото, видео, аудио, текст и готовые посты.</p>
+          <article class="glass-panel panel chat-panel">
+            <div class="chat-canvas">
+              <div class="chat-logo"></div>
+              <div id="latestOutput" class="output-card empty">
+                <p>Пока нет генераций. Введи запрос ниже и нажми «Генерировать».</p>
+              </div>
+            </div>
+
+            <form id="generatorForm" class="stack composer-stack">
+              <div id="contentTypeGroup" class="type-group type-carousel">
+                <button type="button" class="type-btn active" data-type="text">Текст</button>
+                <button type="button" class="type-btn" data-type="image">Картинка</button>
+                <button type="button" class="type-btn" data-type="video">Видео</button>
+                <button type="button" class="type-btn" data-type="audio">Аудио</button>
+                <button type="button" class="type-btn" data-type="post">Пост</button>
               </div>
 
-              <form id="generatorForm" class="stack">
-                <div>
-                  <label class="label">Тип контента</label>
-                  <div id="contentTypeGroup" class="type-group">
-                    <button type="button" class="type-btn active" data-type="text">Текст</button>
-                    <button type="button" class="type-btn" data-type="image">Фото</button>
-                    <button type="button" class="type-btn" data-type="video">Видео</button>
-                    <button type="button" class="type-btn" data-type="audio">Аудио</button>
-                    <button type="button" class="type-btn" data-type="post">Готовый пост</button>
-                  </div>
-                </div>
+              <div class="composer-shell glass-lite">
+                <label class="sr-only" for="promptInput">Промпт</label>
+                <textarea
+                  id="promptInput"
+                  rows="2"
+                  placeholder="Ask anything..."
+                ></textarea>
 
-                <div>
-                  <label class="label" for="promptInput">Промпт</label>
-                  <textarea
-                    id="promptInput"
-                    rows="4"
-                    placeholder="Например: Сделай динамичный пост про запуск нового продукта для Instagram"
-                  ></textarea>
-                </div>
-
-                <div class="inline-fields">
-                  <div>
-                    <label class="label" for="toneSelect">Тон</label>
-                    <select id="toneSelect">
-                      <option value="премиальный">Премиальный</option>
-                      <option value="дружелюбный">Дружелюбный</option>
-                      <option value="экспертный">Экспертный</option>
-                      <option value="агрессивный">Продажный</option>
-                    </select>
+                <div class="composer-toolbar">
+                  <div class="inline-fields compact">
+                    <div>
+                      <label class="label" for="toneSelect">Тон</label>
+                      <select id="toneSelect">
+                        <option value="премиальный">Премиальный</option>
+                        <option value="дружелюбный">Дружелюбный</option>
+                        <option value="экспертный">Экспертный</option>
+                        <option value="агрессивный">Продажный</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="label" for="platformSelect">Платформа</label>
+                      <select id="platformSelect">
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Telegram">Telegram</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label class="label" for="platformSelect">Платформа</label>
-                    <select id="platformSelect">
-                      <option value="Instagram">Instagram</option>
-                      <option value="TikTok">TikTok</option>
-                      <option value="YouTube">YouTube</option>
-                      <option value="Telegram">Telegram</option>
-                      <option value="LinkedIn">LinkedIn</option>
-                    </select>
-                  </div>
+                  <button type="submit" class="primary-btn composer-send">Генерировать</button>
                 </div>
-
-                <button type="submit" class="primary-btn">Сгенерировать</button>
-              </form>
+              </div>
 
               <p id="generatorMessage" class="message" aria-live="polite"></p>
-            </article>
-
-            <article class="glass-panel panel">
-              <div class="panel-head">
-                <h2>Результат</h2>
-                <p>Последняя генерация сохраняется в историю автоматически.</p>
-              </div>
-
-              <div id="latestOutput" class="output-card empty">
-                <p>Пока нет генераций. Заполните форму слева.</p>
-              </div>
-            </article>
-          </div>
+            </form>
+          </article>
         </section>
 
         <section class="view" id="view-history">
@@ -122,20 +139,20 @@
             <div class="panel-head split">
               <div>
                 <h2>История генераций</h2>
-                <p>Все созданные материалы по всем типам контента.</p>
+                <p>Фильтруй генерации по категориям: текст, картинки, видео, аудио и посты.</p>
               </div>
-              <button id="clearHistoryBtn" class="ghost-btn">Очистить историю</button>
+              <button id="clearHistoryBtn" class="ghost-btn" type="button">Очистить историю</button>
             </div>
 
             <div class="history-controls">
               <input id="historySearch" type="search" placeholder="Поиск по промпту или результату" />
               <select id="historyFilter">
-                <option value="all">Все типы</option>
-                <option value="text">Текст</option>
-                <option value="image">Фото</option>
+                <option value="all">Все категории</option>
+                <option value="text">Тексты</option>
+                <option value="image">Картинки</option>
                 <option value="video">Видео</option>
                 <option value="audio">Аудио</option>
-                <option value="post">Готовый пост</option>
+                <option value="post">Посты</option>
               </select>
             </div>
 
@@ -147,11 +164,19 @@
           <article class="glass-panel panel">
             <div class="panel-head">
               <h2>Профиль</h2>
-              <p>Полноценный аккаунт автора с персональными данными.</p>
+              <p>Настройки аккаунта и персональные данные.</p>
             </div>
 
             <section class="glass-lite auth-panel">
-              <div id="authLoggedOut" class="stack">
+              <div id="authLoggedIn" class="stack">
+                <p id="authIdentity" class="auth-identity"></p>
+                <div class="auth-actions">
+                  <button id="manageBillingBtn" type="button" class="ghost-btn">Обновить статус оплаты</button>
+                  <button id="logoutBtn" type="button" class="ghost-btn danger">Выйти</button>
+                </div>
+              </div>
+
+              <div id="authLoggedOut" class="stack hidden">
                 <div class="auth-mode-group">
                   <button type="button" class="auth-mode-btn active" data-auth-mode="login">Вход</button>
                   <button type="button" class="auth-mode-btn" data-auth-mode="register">Регистрация</button>
@@ -183,15 +208,6 @@
                   <button id="authSubmitBtn" type="submit" class="primary-btn">Войти</button>
                   <p id="authMessage" class="message" aria-live="polite"></p>
                 </form>
-              </div>
-
-              <div id="authLoggedIn" class="stack hidden">
-                <p id="authIdentity" class="auth-identity"></p>
-                <div class="auth-actions">
-                  <button id="manageBillingBtn" type="button" class="ghost-btn">Обновить статус оплаты</button>
-                  <button id="logoutBtn" type="button" class="ghost-btn danger">Выйти</button>
-                </div>
-                <p id="billingMessage" class="message" aria-live="polite"></p>
               </div>
             </section>
 
@@ -232,14 +248,21 @@
             </div>
 
             <div class="stats-grid" id="statsGrid"></div>
+          </article>
+        </section>
 
-            <section class="glass-lite profile-plans">
-              <div class="panel-head">
-                <h2>Подписка</h2>
-                <p>Управляйте тарифом прямо в профиле.</p>
+        <section class="view" id="view-plan">
+          <article class="glass-panel panel">
+            <div class="panel-head split">
+              <div>
+                <h2>Тариф</h2>
+                <p>Выбирай план и управляй подпиской.</p>
               </div>
-              <div id="plansGrid" class="plans-grid"></div>
-            </section>
+              <button id="planRefreshBillingBtn" type="button" class="ghost-btn">Проверить оплату</button>
+            </div>
+
+            <div id="plansGrid" class="plans-grid"></div>
+            <p id="billingMessage" class="message" aria-live="polite"></p>
           </article>
         </section>
 
@@ -250,7 +273,7 @@
                 <h2>Админ панель</h2>
                 <p>Управление клиентами, подписками и аналитикой платежей.</p>
               </div>
-              <button id="adminRefreshBtn" class="ghost-btn">Обновить данные</button>
+              <button id="adminRefreshBtn" class="ghost-btn" type="button">Обновить данные</button>
             </div>
 
             <div id="adminMetricsGrid" class="stats-grid"></div>
@@ -304,7 +327,7 @@
                 <p>Последние платежные события из Cardlink.</p>
               </div>
 
-              <div class="admin-controls">
+              <div class="admin-controls compact">
                 <select id="adminPaymentStatusFilter">
                   <option value="">Все статусы</option>
                   <option value="SUCCESS">SUCCESS</option>
@@ -382,8 +405,8 @@
         <p class="history-prompt"></p>
         <p class="history-output"></p>
         <div class="history-actions">
-          <button class="ghost-btn copy-btn">Копировать</button>
-          <button class="ghost-btn danger delete-btn">Удалить</button>
+          <button class="ghost-btn copy-btn" type="button">Копировать</button>
+          <button class="ghost-btn danger delete-btn" type="button">Удалить</button>
         </div>
       </article>
     </template>
