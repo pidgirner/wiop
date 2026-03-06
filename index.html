@@ -2,111 +2,145 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#000000" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="WIOP" />
-    <title>WIOP Chat</title>
+    <title>WIOP</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="phone">
-      <div class="statusbar">
-        <div class="time">9:41</div>
-        <div class="icons">
-          <div class="signal-bars">
-            <span></span><span></span><span></span><span></span>
-          </div>
-          <svg viewBox="0 0 24 18" fill="white" class="wifi-icon" aria-hidden="true">
-            <path d="M12 4C8.4 4 5.2 5.6 3 8.2L5 10.4C6.7 8.3 9.2 7 12 7s5.3 1.3 7 3.4l2-2.2C18.8 5.6 15.6 4 12 4z" opacity="0.4" />
-            <path d="M12 8c-2.4 0-4.5 1-6 2.6l2 2.2c1-1.1 2.5-1.8 4-1.8s3 .7 4 1.8l2-2.2C16.5 9 14.4 8 12 8z" opacity="0.7" />
-            <path d="M12 12c-1.2 0-2.2.5-3 1.3l3 3.3 3-3.3C14.2 12.5 13.2 12 12 12z" />
-          </svg>
-          <div class="battery"><div class="battery-fill"></div></div>
-        </div>
-      </div>
-
-      <header class="topnav">
-        <button id="menuToggleBtn" class="hamburger" type="button" aria-label="Открыть меню">
-          <span></span>
-          <span></span>
-        </button>
-
-        <div class="toggle-group" role="tablist" aria-label="Режимы">
-          <button id="modeChatBtn" class="toggle-btn active" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-            Chat
-          </button>
-          <button id="modeVoiceBtn" class="toggle-btn" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-            </svg>
-            Voice
-          </button>
-        </div>
-
-        <button id="avatarMenuBtn" class="avatar-btn" type="button" aria-label="Профиль и меню">
-          <svg viewBox="0 0 24 24" fill="white" aria-hidden="true">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-          </svg>
-        </button>
-      </header>
-
-      <div class="runtime-meta" aria-hidden="true">
-        <span id="activePlanBadge">FREE</span>
-        <span id="authStatusBadge">Гость</span>
-        <button id="installAppBtn" class="hidden" type="button">Установить</button>
-        <span id="usageText">0 / 30</span>
-        <div class="usage-track"><div id="usageFill" class="usage-fill"></div></div>
-      </div>
-
+    <div class="app">
       <div id="menuBackdrop" class="menu-backdrop hidden"></div>
-      <aside id="sideMenu" class="side-menu" aria-hidden="true">
-        <div class="side-head">
-          <p id="menuIdentity">Аккаунт</p>
-          <button id="menuCloseBtn" class="close-btn" type="button" aria-label="Закрыть">✕</button>
+
+      <aside id="sideMenu" class="sidebar" aria-hidden="false">
+        <div class="sidebar-top">
+          <a class="logo" href="/app" aria-label="WIOP">
+            <img class="logo-icon" src="/icons/icon-192.png" alt="WIOP" />
+            <span class="logo-text">WIOP</span>
+          </a>
+          <button id="menuCloseBtn" class="new-chat-btn" type="button" title="New chat" aria-label="New chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
         </div>
 
-        <div class="side-section">
-          <button class="menu-link active" data-menu-view="create" type="button">Чат</button>
-          <button class="menu-link" data-menu-view="profile" type="button">Профиль</button>
-          <button class="menu-link" data-menu-view="plan" type="button">Тариф</button>
-          <button id="adminTabBtn" class="menu-link hidden" data-menu-view="admin" type="button">Админ</button>
+        <div class="sidebar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span>Search chats</span>
         </div>
 
-        <div class="side-section">
-          <p class="side-label">История по категориям</p>
-          <button class="menu-filter active" data-menu-history="all" type="button">Все</button>
-          <button class="menu-filter" data-menu-history="text" type="button">Текст</button>
-          <button class="menu-filter" data-menu-history="image" type="button">Картинки</button>
-          <button class="menu-filter" data-menu-history="video" type="button">Видео</button>
-          <button class="menu-filter" data-menu-history="audio" type="button">Аудио</button>
-          <button class="menu-filter" data-menu-history="post" type="button">Посты</button>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Workspace</div>
+          <button class="chat-item active" data-menu-view="create" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>New conversation</span>
+          </button>
+          <button class="chat-item" data-menu-view="history" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+            <span>History</span>
+          </button>
+          <button class="chat-item" data-menu-view="profile" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+          </button>
+          <button class="chat-item" data-menu-view="plan" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Subscription</span>
+          </button>
+          <button id="adminTabBtn" class="chat-item hidden" data-menu-view="admin" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M8 17v-6M12 17V7M16 17v-3"/></svg>
+            <span>Admin</span>
+          </button>
         </div>
 
-        <div class="side-actions">
-          <button id="menuRefreshBillingBtn" class="menu-link" type="button">Обновить оплату</button>
-          <button id="menuLogoutBtn" class="menu-link danger" type="button">Выйти</button>
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">History Categories</div>
+          <button class="chat-item menu-filter active" data-menu-history="all" type="button"><span>All</span></button>
+          <button class="chat-item menu-filter" data-menu-history="text" type="button"><span>Text</span></button>
+          <button class="chat-item menu-filter" data-menu-history="image" type="button"><span>Images</span></button>
+          <button class="chat-item menu-filter" data-menu-history="video" type="button"><span>Video</span></button>
+          <button class="chat-item menu-filter" data-menu-history="audio" type="button"><span>Audio</span></button>
+          <button class="chat-item menu-filter" data-menu-history="post" type="button"><span>Posts</span></button>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="user-row">
+            <div class="user-avatar">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            </div>
+            <div class="user-info">
+              <div id="menuIdentity" class="user-name">User</div>
+              <div class="user-plan" id="activePlanBadge">FREE</div>
+            </div>
+            <button id="menuToggleBtn" class="more" type="button" aria-label="Open menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+          <div class="sidebar-actions">
+            <button id="menuRefreshBillingBtn" class="ghost-btn" type="button">Refresh billing</button>
+            <button id="menuLogoutBtn" class="ghost-btn danger" type="button">Logout</button>
+          </div>
         </div>
       </aside>
 
       <main class="main">
-        <section class="view active" id="view-create">
-          <div class="main-empty">
-            <img class="grok-logo" src="/icons/icon-192.png" alt="WIOP" />
-            <div id="latestOutput" class="latest-output empty"></div>
+        <div class="topbar">
+          <div class="topbar-left">
+            <button id="avatarMenuBtn" class="mobile-menu-btn" type="button" aria-label="Open menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
+            <div class="toggle-group" role="tablist" aria-label="Mode">
+              <button id="modeChatBtn" class="toggle-btn active" type="button" data-mode="chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat
+              </button>
+              <button id="modeVoiceBtn" class="toggle-btn" type="button" data-mode="voice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+                Voice
+              </button>
+            </div>
           </div>
 
-          <div class="bottom">
-            <form id="generatorForm" class="create-form">
+          <div class="topbar-right">
+            <span id="authStatusBadge" class="meta-chip">Guest</span>
+            <button id="installAppBtn" class="icon-btn hidden" type="button" title="Install App">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            </button>
+            <div class="usage-mini">
+              <span id="usageText">0 / 30</span>
+              <div class="usage-track"><div id="usageFill" class="usage-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="view active" id="view-create">
+          <div class="content">
+            <div class="welcome">
+              <img class="welcome-logo" src="/icons/icon-192.png" alt="WIOP" />
+              <h1>How can WIOP help you?</h1>
+              <p>Ask anything, create content and automate workflows.</p>
+            </div>
+
+            <div class="chips">
+              <button class="suggest-chip" type="button" data-suggest="Summarize an article">Summarize an article</button>
+              <button class="suggest-chip" type="button" data-suggest="Write some code">Write some code</button>
+              <button class="suggest-chip" type="button" data-suggest="Analyze data">Analyze data</button>
+              <button class="suggest-chip" type="button" data-suggest="Draft an email">Draft an email</button>
+              <button class="suggest-chip" type="button" data-suggest="Generate an image">Generate an image</button>
+              <button class="suggest-chip" type="button" data-suggest="Explain a concept">Explain a concept</button>
+            </div>
+
+            <div id="latestOutput" class="latest-output empty"></div>
+
+            <form id="generatorForm" class="input-zone">
               <div id="contentTypeGroup" class="native-type-group" aria-hidden="true">
                 <button type="button" class="type-btn active" data-type="text">Text</button>
                 <button type="button" class="type-btn" data-type="image">Image</button>
@@ -117,86 +151,55 @@
 
               <div class="quick-actions">
                 <button class="action-card" data-quick-type="audio" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>
-                  </svg>
-                  <span>Voice Mode</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+                  Voice Mode
                 </button>
-
                 <button class="action-card" data-quick-type="image" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="3"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M21 15l-5-5L5 21"/>
-                    <path d="M12 7h5M14.5 7v5"/>
-                  </svg>
-                  <span>Create Images</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/><path d="M13 6h5M15.5 6v5"/></svg>
+                  Create Images
                 </button>
-
                 <button class="action-card" data-quick-type="video" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <rect x="2" y="6" width="15" height="12" rx="2"/>
-                    <path d="M17 10l5-3v10l-5-3z"/>
-                  </svg>
-                  <span>Create Video</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit Image
                 </button>
-
                 <button class="action-card" data-quick-type="post" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M4 4h16v16H4z"/>
-                    <path d="M8 8h8M8 12h8M8 16h5"/>
-                  </svg>
-                  <span>Ready Post</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                  Analyze
+                </button>
+                <button class="action-card" data-quick-type="text" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  DeepSearch
                 </button>
               </div>
 
-              <div class="input-area">
-                <label class="sr-only" for="promptInput">Промпт</label>
-                <textarea id="promptInput" rows="2" placeholder="Ask Anything"></textarea>
-
-                <div class="input-bottom">
-                  <div class="input-icons" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                    </svg>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="11" cy="11" r="8"/>
-                      <path d="M21 21l-4.35-4.35"/>
-                    </svg>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3.5 6L15 17H9l-.5-2C6.5 13.5 5 11.5 5 9a7 7 0 0 1 7-7z"/>
-                    </svg>
+              <div class="input-box">
+                <textarea id="promptInput" class="input-field" placeholder="Ask anything..." rows="1"></textarea>
+                <div class="input-footer">
+                  <div class="input-tools" aria-hidden="true">
+                    <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+                    <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+                    <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3.5 6L15 17H9l-.5-2C6.5 13.5 5 11.5 5 9a7 7 0 0 1 7-7z"/></svg></div>
                   </div>
 
-                  <div class="right-input">
+                  <div class="input-right">
                     <div class="model-badge">
                       <div class="model-dot"></div>
                       <span id="selectedTypeBadge">Text</span>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M6 9l6 6 6-6"/>
-                      </svg>
+                      <div class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
                     </div>
-                    <button class="mic-btn" type="submit" aria-label="Сгенерировать">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                        <line x1="12" y1="19" x2="12" y2="22"/>
-                      </svg>
+                    <button class="send-btn" type="submit" aria-label="Send">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                   </div>
                 </div>
 
                 <div class="hidden-controls" aria-hidden="true">
-                  <label for="toneSelect">Тон</label>
                   <select id="toneSelect">
-                    <option value="премиальный">Премиальный</option>
-                    <option value="дружелюбный">Дружелюбный</option>
-                    <option value="экспертный">Экспертный</option>
-                    <option value="агрессивный">Продажный</option>
+                    <option value="премиальный">премиальный</option>
+                    <option value="дружелюбный">дружелюбный</option>
+                    <option value="экспертный">экспертный</option>
+                    <option value="агрессивный">продажный</option>
                   </select>
-
-                  <label for="platformSelect">Платформа</label>
                   <select id="platformSelect">
                     <option value="Instagram">Instagram</option>
                     <option value="TikTok">TikTok</option>
@@ -206,29 +209,27 @@
                   </select>
                 </div>
               </div>
-
               <p id="generatorMessage" class="message" aria-live="polite"></p>
+              <div class="input-hint">WIOP can make mistakes. Verify important information.</div>
             </form>
-
-            <div class="home-indicator"></div>
           </div>
         </section>
 
         <section class="view" id="view-history">
           <article class="panel-card">
             <div class="panel-head">
-              <h2>История генераций</h2>
-              <button id="clearHistoryBtn" class="mini-btn" type="button">Очистить</button>
+              <h2>History</h2>
+              <button id="clearHistoryBtn" class="mini-btn" type="button">Clear</button>
             </div>
             <div class="history-controls">
-              <input id="historySearch" type="search" placeholder="Поиск" />
+              <input id="historySearch" type="search" placeholder="Search" />
               <select id="historyFilter">
-                <option value="all">Все</option>
-                <option value="text">Текст</option>
-                <option value="image">Картинки</option>
-                <option value="video">Видео</option>
-                <option value="audio">Аудио</option>
-                <option value="post">Посты</option>
+                <option value="all">All</option>
+                <option value="text">Text</option>
+                <option value="image">Images</option>
+                <option value="video">Video</option>
+                <option value="audio">Audio</option>
+                <option value="post">Posts</option>
               </select>
             </div>
             <div id="historyList" class="history-list"></div>
@@ -240,39 +241,38 @@
             <div id="authLoggedIn" class="stack">
               <p id="authIdentity"></p>
               <div class="row-btns">
-                <button id="manageBillingBtn" class="mini-btn" type="button">Обновить оплату</button>
-                <button id="logoutBtn" class="mini-btn danger" type="button">Выйти</button>
+                <button id="manageBillingBtn" class="mini-btn" type="button">Refresh billing status</button>
+                <button id="logoutBtn" class="mini-btn danger" type="button">Logout</button>
               </div>
             </div>
 
             <div id="authLoggedOut" class="stack hidden">
               <div class="auth-mode-group">
-                <button type="button" class="auth-mode-btn active" data-auth-mode="login">Вход</button>
-                <button type="button" class="auth-mode-btn" data-auth-mode="register">Регистрация</button>
+                <button type="button" class="auth-mode-btn active" data-auth-mode="login">Login</button>
+                <button type="button" class="auth-mode-btn" data-auth-mode="register">Register</button>
               </div>
               <form id="authForm" class="stack">
                 <input id="authEmail" type="email" placeholder="Email" required />
-                <input id="authPassword" type="password" minlength="8" placeholder="Пароль" required />
+                <input id="authPassword" type="password" minlength="8" placeholder="Password" required />
                 <div class="auth-register-only hidden">
-                  <input id="authFullName" type="text" placeholder="Имя" />
+                  <input id="authFullName" type="text" placeholder="Full name" />
                   <input id="authUsername" type="text" placeholder="Username" />
                 </div>
-                <button id="authSubmitBtn" type="submit" class="mini-btn">Войти</button>
+                <button id="authSubmitBtn" class="mini-btn" type="submit">Login</button>
                 <p id="authMessage" class="message" aria-live="polite"></p>
               </form>
             </div>
 
+            <div class="avatar-preview" id="avatarPreview">WI</div>
             <form id="profileForm" class="stack">
-              <input id="fullName" type="text" placeholder="Имя" />
+              <input id="fullName" type="text" placeholder="Full name" />
               <input id="username" type="text" placeholder="Username" />
               <input id="email" type="email" placeholder="Email" />
-              <input id="website" type="url" placeholder="Сайт" />
-              <textarea id="bio" rows="3" placeholder="О себе"></textarea>
-              <button type="submit" class="mini-btn">Сохранить профиль</button>
+              <input id="website" type="url" placeholder="Website" />
+              <textarea id="bio" rows="3" placeholder="Bio"></textarea>
+              <button type="submit" class="mini-btn">Save profile</button>
               <p id="profileMessage" class="message" aria-live="polite"></p>
             </form>
-
-            <div id="avatarPreview" class="avatar-preview">LC</div>
             <div id="statsGrid" class="stats-grid"></div>
           </article>
         </section>
@@ -280,8 +280,8 @@
         <section class="view" id="view-plan">
           <article class="panel-card">
             <div class="panel-head">
-              <h2>Тариф</h2>
-              <button id="planRefreshBillingBtn" class="mini-btn" type="button">Проверить оплату</button>
+              <h2>Plan</h2>
+              <button id="planRefreshBillingBtn" class="mini-btn" type="button">Check payment</button>
             </div>
             <div id="plansGrid" class="plans-grid"></div>
             <p id="billingMessage" class="message" aria-live="polite"></p>
@@ -291,20 +291,20 @@
         <section class="view" id="view-admin">
           <article class="panel-card admin-card">
             <div class="panel-head">
-              <h2>Админ</h2>
-              <button id="adminRefreshBtn" class="mini-btn" type="button">Обновить</button>
+              <h2>Admin</h2>
+              <button id="adminRefreshBtn" class="mini-btn" type="button">Refresh</button>
             </div>
             <div id="adminMetricsGrid" class="stats-grid"></div>
             <div class="admin-controls">
-              <input id="adminUserSearch" type="search" placeholder="Поиск" />
-              <select id="adminPlanFilter"><option value="">Все планы</option><option value="free">Free</option><option value="plus">Plus</option><option value="pro">Pro</option></select>
-              <select id="adminRoleFilter"><option value="">Все роли</option><option value="user">User</option><option value="admin">Admin</option></select>
-              <select id="adminStatusFilter"><option value="">Любой статус</option><option value="active">active</option><option value="blocked">blocked</option></select>
+              <input id="adminUserSearch" type="search" placeholder="Search" />
+              <select id="adminPlanFilter"><option value="">All plans</option><option value="free">Free</option><option value="plus">Plus</option><option value="pro">Pro</option></select>
+              <select id="adminRoleFilter"><option value="">All roles</option><option value="user">User</option><option value="admin">Admin</option></select>
+              <select id="adminStatusFilter"><option value="">Any status</option><option value="active">active</option><option value="blocked">blocked</option></select>
             </div>
             <div class="table-wrap"><table class="admin-table"><tbody id="adminUsersBody"></tbody></table></div>
-            <select id="adminPaymentStatusFilter"><option value="">Все статусы</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
+            <select id="adminPaymentStatusFilter"><option value="">All statuses</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
             <div class="table-wrap"><table class="admin-table"><tbody id="adminPaymentsBody"></tbody></table></div>
-            <select id="adminLeadStatusFilter"><option value="">Все статусы</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
+            <select id="adminLeadStatusFilter"><option value="">All lead statuses</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
             <div class="table-wrap"><table class="admin-table"><tbody id="adminLeadsBody"></tbody></table></div>
             <p id="adminMessage" class="message" aria-live="polite"></p>
           </article>
@@ -321,8 +321,8 @@
         <p class="history-prompt"></p>
         <p class="history-output"></p>
         <div class="history-actions">
-          <button class="mini-btn copy-btn" type="button">Копировать</button>
-          <button class="mini-btn danger delete-btn" type="button">Удалить</button>
+          <button class="ghost-btn copy-btn" type="button">Copy</button>
+          <button class="ghost-btn danger delete-btn" type="button">Delete</button>
         </div>
       </article>
     </template>

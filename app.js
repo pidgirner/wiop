@@ -118,6 +118,7 @@ const elements = {
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
   quickActionCards: Array.from(document.querySelectorAll("[data-quick-type]")),
+  suggestChips: Array.from(document.querySelectorAll("[data-suggest]")),
   modeChatBtn: document.getElementById("modeChatBtn"),
   modeVoiceBtn: document.getElementById("modeVoiceBtn"),
   selectedTypeBadge: document.getElementById("selectedTypeBadge"),
@@ -184,6 +185,7 @@ function init() {
   setupPwa();
   applyAuthMode();
   ensureSelectedType();
+  resizePromptInput();
   renderAll();
   void bootstrap();
 }
@@ -244,6 +246,22 @@ function bindEvents() {
       setSelectedType("audio");
     });
   }
+
+  elements.suggestChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const text = String(chip.dataset.suggest || "").trim();
+      if (!text) {
+        return;
+      }
+      elements.promptInput.value = text;
+      resizePromptInput();
+      elements.promptInput.focus();
+    });
+  });
+
+  elements.promptInput.addEventListener("input", () => {
+    resizePromptInput();
+  });
 
   elements.generatorForm.addEventListener("submit", onGenerate);
 
@@ -399,6 +417,15 @@ function setSelectedType(type) {
   saveState();
   renderTypeButtons();
   clearMessage(elements.generatorMessage);
+}
+
+function resizePromptInput() {
+  if (!elements.promptInput) {
+    return;
+  }
+
+  elements.promptInput.style.height = "auto";
+  elements.promptInput.style.height = `${Math.min(elements.promptInput.scrollHeight, 200)}px`;
 }
 
 async function bootstrap() {
