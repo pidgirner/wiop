@@ -3,83 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Liquid Content Studio - AI платформа для генерации контента</title>
+    <title>WIOP | Work in one place — AI-платформа для креаторов</title>
     <meta
       name="description"
-      content="Liquid Content Studio - футуристичная AI-платформа для креаторов: тексты, визуал, видео-сценарии, аудио и готовые посты в одном приложении."
+      content="Создавайте тексты, изображения, видео и аудио в одном месте с помощью искусственного интеллекта. WIOP — идеальный инструмент для креаторов и бизнеса."
     />
     <meta name="format-detection" content="telephone=no" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-    <meta name="theme-color" content="#e9f5ff" />
+    <meta name="theme-color" content="#f8fafc" />
     <link rel="canonical" href="__BASE_URL__/" />
     <link rel="sitemap" type="application/xml" href="__BASE_URL__/sitemap.xml" />
+
+    <meta property="og:title" content="WIOP | Work in one place" />
+    <meta property="og:description" content="AI-платформа для создания контента: text, image, video, audio, post." />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Liquid Content Studio - AI платформа для генерации контента" />
-    <meta property="og:site_name" content="Liquid Content Studio" />
-    <meta
-      property="og:description"
-      content="Создавайте контент в стиле liquid glass: фото-концепты, видео-сценарии, аудио-скрипты и готовые посты."
-    />
     <meta property="og:url" content="__BASE_URL__/" />
     <meta property="og:image" content="__BASE_URL__/icons/icon-512.png" />
+
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Liquid Content Studio" />
-    <meta name="twitter:description" content="AI контент-платформа для креаторов и команд." />
+    <meta name="twitter:title" content="WIOP | Work in one place" />
+    <meta name="twitter:description" content="AI-платформа для создания контента: text, image, video, audio, post." />
     <meta name="twitter:image" content="__BASE_URL__/icons/icon-512.png" />
+
     <meta name="yandex-verification" content="__YANDEX_VERIFICATION__" />
     <meta name="google-site-verification" content="__GOOGLE_SITE_VERIFICATION__" />
+
     <link rel="alternate" hreflang="ru" href="__BASE_URL__/" />
     <link rel="alternate" hreflang="x-default" href="__BASE_URL__/" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+              display: ["Outfit", "ui-sans-serif", "system-ui", "sans-serif"]
+            }
+          }
+        }
+      };
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
     <link rel="stylesheet" href="/landing.css" />
 
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "Liquid Content Studio",
+        "name": "WIOP",
         "url": "__BASE_URL__/",
         "logo": "__BASE_URL__/icons/icon-512.png",
         "sameAs": []
       }
     </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "Liquid Content Studio",
-        "url": "__BASE_URL__/app",
+        "name": "WIOP - Work in one place",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "offers": [
-          {
-            "@type": "Offer",
-            "name": "Free",
-            "price": "0",
-            "priceCurrency": "RUB"
-          },
-          {
-            "@type": "Offer",
-            "name": "Plus",
-            "price": "19",
-            "priceCurrency": "RUB"
-          },
-          {
-            "@type": "Offer",
-            "name": "Pro",
-            "price": "59",
-            "priceCurrency": "RUB"
-          }
-        ],
-        "description": "AI платформа для генерации фото, видео, аудио, текста и готовых постов"
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "AI-платформа для создания контента: text, image, video, audio, post."
       }
     </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -87,271 +88,386 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "Для кого подходит Liquid Content Studio?",
+            "name": "Что такое WIOP?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Для креаторов, маркетологов, SMM-команд и агентств, которым нужен быстрый контент-пайплайн."
+              "text": "WIOP — это единая платформа на базе ИИ для создания любого типа контента: текстов, изображений, видео и аудио."
             }
           },
           {
             "@type": "Question",
-            "name": "Можно ли начать бесплатно?",
+            "name": "Есть ли бесплатная версия?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Да, доступен тариф Free с базовыми лимитами и историей генераций."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Как войти в приложение?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Нажмите кнопку «Войти» на лендинге, в модальном окне выполните вход или регистрацию, после этого откроется приложение."
+              "text": "Да, у нас есть тариф Free, который позволяет ознакомиться с базовыми функциями платформы."
             }
           }
         ]
       }
     </script>
   </head>
-  <body>
-    <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
-    <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
-    <div class="bg-grid" aria-hidden="true"></div>
 
-    <header class="shell">
-      <nav class="top-nav glass" data-reveal>
-        <a class="brand" href="/">
-          <span class="brand-mark"></span>
-          <span>Liquid Content Studio</span>
-        </a>
-        <div class="nav-links">
-          <a href="#features">Возможности</a>
-          <a href="#pricing">Тарифы</a>
-          <a href="#faq">FAQ</a>
-          <button class="btn btn-nav" type="button" data-auth-open>Войти</button>
-        </div>
-      </nav>
+  <body class="min-h-screen overflow-x-hidden bg-slate-50 selection:bg-indigo-500/30">
+    <div class="orb bg-indigo-400/30 w-[500px] h-[500px] top-[-100px] left-[-100px]"></div>
+    <div class="orb bg-blue-400/20 w-[600px] h-[600px] top-[20%] right-[-200px]"></div>
+    <div class="orb bg-purple-400/20 w-[400px] h-[400px] bottom-[-100px] left-[20%]"></div>
 
-      <section class="hero glass">
-        <div class="hero-copy" data-reveal style="--delay: 70ms">
-          <p class="kicker">Futuristic Liquid Glass Experience</p>
-          <h1>Контент-платформа для креаторов нового поколения</h1>
-          <p>
-            Минималистичный интерфейс в эстетике liquid glass, AI-генерация контента и единая история материалов.
-            Все, что нужно для ежедневного продакшена, уже в одном приложении.
-          </p>
-          <div class="hero-actions">
-            <button class="btn btn-primary" type="button" data-auth-open>Войти</button>
-            <a class="btn btn-ghost" href="#lead">Получить демо</a>
-          </div>
-          <ul class="hero-list">
-            <li>Фото, видео, аудио, текст и готовые посты</li>
-            <li>Тарифы Free / Plus / Pro</li>
-            <li>Профиль, аналитика и админ-панель</li>
-          </ul>
-        </div>
-
-        <div class="hero-visual" data-reveal style="--delay: 140ms">
-          <div class="glass-screen" id="heroVisual">
-            <div class="screen-head"><span></span><span></span><span></span></div>
-            <div class="screen-card">
-              <p>Creator Feed</p>
-              <h3>Trend Motion Prompt</h3>
-              <div class="lines"><span></span><span></span><span></span></div>
+    <nav class="fixed top-0 left-0 right-0 z-40 glass border-b-0 border-white/20">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="flex h-20 items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/30">
+              <i data-lucide="sparkles" class="h-5 w-5"></i>
             </div>
-            <div class="screen-card soft">
-              <p>Post Builder</p>
-              <h3>High-converting caption</h3>
-              <div class="chips"><span>#creator</span><span>#launch</span><span>#viral</span></div>
-            </div>
+            <span class="font-display text-xl font-bold tracking-tight text-slate-900">WIOP</span>
           </div>
-          <img src="/icons/icon-512-maskable.png" alt="Логотип Liquid Content Studio" width="110" height="110" class="floating-logo" />
-          <div class="stat-badge">+240 идей / мес</div>
+
+          <div class="hidden items-center gap-8 md:flex">
+            <a href="#features" class="text-sm font-medium text-slate-600 transition-colors hover:text-indigo-600">Возможности</a>
+            <a href="#audience" class="text-sm font-medium text-slate-600 transition-colors hover:text-indigo-600">Для кого</a>
+            <a href="#pricing" class="text-sm font-medium text-slate-600 transition-colors hover:text-indigo-600">Тарифы</a>
+            <button data-auth-open class="rounded-full bg-slate-900 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/25">
+              Войти
+            </button>
+          </div>
+
+          <button id="mobileMenuBtn" class="p-2 md:hidden text-slate-600" aria-label="Открыть меню">
+            <i data-lucide="menu" class="h-6 w-6" id="menuIcon"></i>
+            <i data-lucide="x" class="h-6 w-6 hidden" id="closeIcon"></i>
+          </button>
         </div>
-      </section>
-    </header>
+      </div>
+    </nav>
+
+    <div id="mobileMenu" class="fixed inset-0 z-30 hidden bg-white/95 backdrop-blur-xl pt-24 px-6 md:hidden">
+      <div class="flex flex-col gap-6 text-lg font-medium">
+        <a href="#features" data-menu-link>Возможности</a>
+        <a href="#audience" data-menu-link>Для кого</a>
+        <a href="#pricing" data-menu-link>Тарифы</a>
+        <button data-auth-open class="mt-4 rounded-xl bg-indigo-600 py-4 text-center text-white">
+          Войти в платформу
+        </button>
+      </div>
+    </div>
 
     <main>
-      <section id="features" class="section glass">
-        <div class="section-head" data-reveal>
-          <p class="kicker">Core Modules</p>
-          <h2>Минимализм с высокой скоростью продакшена</h2>
-          <p>Платформа закрывает цикл: идея -> генерация -> история -> масштабирование.</p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature-card" data-reveal style="--delay: 40ms">
-            <span class="icon">◇</span>
-            <h3>AI Генератор</h3>
-            <p>Реальные backend-генерации с сохранением результата в облаке.</p>
-          </article>
-          <article class="feature-card" data-reveal style="--delay: 80ms">
-            <span class="icon">◉</span>
-            <h3>История</h3>
-            <p>Все генерации в таблице `generations` и быстрый доступ к прошлым материалам.</p>
-          </article>
-          <article class="feature-card" data-reveal style="--delay: 120ms">
-            <span class="icon">▣</span>
-            <h3>Профиль</h3>
-            <p>Полный аккаунт пользователя и управление персональными данными.</p>
-          </article>
-          <article class="feature-card" data-reveal style="--delay: 160ms">
-            <span class="icon">↗</span>
-            <h3>Аналитика</h3>
-            <p>Админ-панель с метриками по клиентам, лидам и платежам.</p>
-          </article>
-          <article class="feature-card" data-reveal style="--delay: 200ms">
-            <span class="icon">⚑</span>
-            <h3>Подписки</h3>
-            <p>Гибкий рост через уровни Free, Plus и Pro.</p>
-          </article>
-          <article class="feature-card" data-reveal style="--delay: 240ms">
-            <span class="icon">⌁</span>
-            <h3>PWA</h3>
-            <p>Веб-приложение с мобильным UX и быстрым доступом как у native app.</p>
-          </article>
-        </div>
-      </section>
+      <section class="relative pt-32 pb-20 md:pt-48 md:pb-32">
+        <div class="mx-auto max-w-7xl px-6 text-center">
+          <div class="mx-auto max-w-4xl">
+            <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-50/50 px-4 py-1.5 text-sm font-medium text-indigo-600 backdrop-blur-md">
+              <i data-lucide="sparkles" class="h-4 w-4"></i>
+              <span>Будущее создания контента уже здесь</span>
+            </div>
 
-      <section id="pricing" class="section glass pricing">
-        <div class="section-head" data-reveal>
-          <p class="kicker">Pricing</p>
-          <h2>Тарифы для любого темпа контент-производства</h2>
-        </div>
-        <div class="pricing-grid">
-          <article class="price-card" data-reveal style="--delay: 40ms">
-            <h3>Free</h3>
-            <p class="price">0 <span>RUB</span></p>
-            <ul>
-              <li>До 30 генераций</li>
-              <li>Базовые форматы</li>
-              <li>История и профиль</li>
-            </ul>
-          </article>
-          <article class="price-card featured" data-reveal style="--delay: 90ms">
-            <p class="tag">Popular</p>
-            <h3>Plus</h3>
-            <p class="price">19 <span>RUB</span></p>
-            <ul>
-              <li>До 300 генераций</li>
-              <li>Все форматы</li>
-              <li>Оптимально для активных креаторов</li>
-            </ul>
-          </article>
-          <article class="price-card" data-reveal style="--delay: 140ms">
-            <h3>Pro</h3>
-            <p class="price">59 <span>RUB</span></p>
-            <ul>
-              <li>Почти безлимитный поток</li>
-              <li>Команда и админ-функции</li>
-              <li>Максимальная масштабируемость</li>
-            </ul>
-          </article>
-        </div>
-      </section>
+            <h1 class="font-display text-5xl font-bold tracking-tight text-slate-900 sm:text-7xl md:leading-[1.1]">
+              Вся сила ИИ в <br class="hidden sm:block" />
+              <span class="bg-gradient-to-r from-indigo-500 to-blue-500 bg-clip-text text-transparent">одном рабочем пространстве</span>
+            </h1>
 
-      <section id="lead" class="section glass lead-section">
-        <div class="section-head" data-reveal>
-          <p class="kicker">Contact</p>
-          <h2>Нужен индивидуальный запуск для вашей команды?</h2>
-          <p>Оставьте заявку, и мы подготовим персональный сценарий внедрения.</p>
-        </div>
+            <p class="mx-auto mt-8 max-w-2xl text-lg text-slate-600 sm:text-xl">
+              Тексты, изображения, видео и аудио. Генерируйте, редактируйте и публикуйте контент быстрее, чем когда-либо.
+              WIOP — ваш универсальный AI-ассистент.
+            </p>
 
-        <form id="leadForm" class="lead-form" data-reveal style="--delay: 70ms">
-          <div class="grid-2">
-            <label>
-              Имя
-              <input id="leadName" name="name" type="text" placeholder="Ваше имя" required />
-            </label>
-            <label>
-              Email
-              <input id="leadEmail" name="email" type="email" placeholder="name@company.com" required />
-            </label>
+            <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <button data-auth-open class="group flex h-14 items-center gap-2 rounded-full bg-slate-900 px-8 text-base font-medium text-white transition-all hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-500/25">
+                Войти
+                <i data-lucide="chevron-right" class="h-4 w-4 transition-transform group-hover:translate-x-1"></i>
+              </button>
+            </div>
           </div>
-          <div class="grid-2">
-            <label>
-              Телефон / Telegram
-              <input id="leadPhone" name="phone" type="text" placeholder="+996... или @username" />
-            </label>
-            <label>
-              Компания
-              <input id="leadCompany" name="company" type="text" placeholder="Название компании" />
-            </label>
+
+          <div class="mx-auto mt-20 max-w-5xl">
+            <div class="relative rounded-2xl border border-white/40 bg-white/40 p-2 shadow-2xl shadow-indigo-500/10 backdrop-blur-xl sm:p-4">
+              <div class="aspect-[16/9] overflow-hidden rounded-xl bg-slate-900/5 ring-1 ring-slate-900/10">
+                <div class="flex h-full flex-col">
+                  <div class="flex h-12 items-center gap-2 border-b border-slate-200/50 bg-white/50 px-4">
+                    <div class="flex gap-1.5">
+                      <div class="h-3 w-3 rounded-full bg-red-400"></div>
+                      <div class="h-3 w-3 rounded-full bg-amber-400"></div>
+                      <div class="h-3 w-3 rounded-full bg-green-400"></div>
+                    </div>
+                  </div>
+                  <div class="flex flex-1 p-4 gap-4">
+                    <div class="w-48 rounded-lg bg-white/60 hidden md:block"></div>
+                    <div class="flex-1 rounded-lg bg-white/80 shadow-sm flex items-center justify-center text-slate-400">
+                      <i data-lucide="sparkles" class="h-12 w-12 opacity-20"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <label>
-            Задача
-            <textarea id="leadGoal" name="goal" rows="3" placeholder="Охваты, лиды, продажи"></textarea>
-          </label>
-          <button class="btn btn-primary" type="submit">Отправить заявку</button>
-          <p id="leadMessage" class="lead-message" aria-live="polite"></p>
-        </form>
+        </div>
       </section>
 
-      <section id="faq" class="section glass faq">
-        <div class="section-head" data-reveal>
-          <p class="kicker">FAQ</p>
-          <h2>Частые вопросы</h2>
+      <section id="features" class="py-24">
+        <div class="mx-auto max-w-7xl px-6">
+          <div class="mb-16 text-center">
+            <h2 class="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Что умеет продукт</h2>
+            <p class="mt-4 text-lg text-slate-600">Один инструмент для всех ваших творческих задач</p>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-blue-50 p-4"><i data-lucide="file-text" class="h-6 w-6 text-blue-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">AI Копирайтер</h3>
+              <p class="text-slate-600 leading-relaxed">Статьи, посты, сценарии и email-рассылки за секунды.</p>
+            </article>
+
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-purple-50 p-4"><i data-lucide="image" class="h-6 w-6 text-purple-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">Генерация Изображений</h3>
+              <p class="text-slate-600 leading-relaxed">Фотореалистичные арты и иллюстрации по текстовому запросу.</p>
+            </article>
+
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-pink-50 p-4"><i data-lucide="video" class="h-6 w-6 text-pink-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">Создание Видео</h3>
+              <p class="text-slate-600 leading-relaxed">Анимация и монтаж коротких роликов для соцсетей.</p>
+            </article>
+
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-amber-50 p-4"><i data-lucide="mic" class="h-6 w-6 text-amber-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">Синтез Аудио</h3>
+              <p class="text-slate-600 leading-relaxed">Озвучка текста естественными голосами и генерация музыки.</p>
+            </article>
+
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-emerald-50 p-4"><i data-lucide="layout" class="h-6 w-6 text-emerald-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">Умный Постинг</h3>
+              <p class="text-slate-600 leading-relaxed">Автоматическая публикация и планирование контента.</p>
+            </article>
+
+            <article class="group relative overflow-hidden rounded-3xl glass p-8 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50">
+              <div class="mb-6 inline-flex rounded-2xl bg-indigo-50 p-4"><i data-lucide="zap" class="h-6 w-6 text-indigo-500"></i></div>
+              <h3 class="mb-3 font-display text-xl font-semibold text-slate-900">Единая История</h3>
+              <p class="text-slate-600 leading-relaxed">Все ваши генерации сохранены в удобном личном кабинете.</p>
+            </article>
+          </div>
         </div>
-        <div class="faq-list">
-          <details data-reveal style="--delay: 40ms">
-            <summary>Как попасть в приложение?</summary>
-            <p>Через кнопку «Войти» на лендинге: вход или регистрация в popup, затем автоматический переход в /app.</p>
-          </details>
-          <details data-reveal style="--delay: 80ms">
-            <summary>Можно ли зайти без авторизации?</summary>
-            <p>Нет. Доступ в /app открыт только после входа в аккаунт.</p>
-          </details>
-          <details data-reveal style="--delay: 120ms">
-            <summary>Где хранится история генераций?</summary>
-            <p>В базе Supabase в таблице generations, с привязкой к вашему пользователю.</p>
-          </details>
+      </section>
+
+      <section id="audience" class="relative py-24 overflow-hidden">
+        <div class="absolute inset-0 bg-slate-900"></div>
+        <div class="orb bg-indigo-500/20 w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+        <div class="relative mx-auto max-w-7xl px-6">
+          <div class="mb-16 text-center">
+            <h2 class="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">Для кого создан WIOP</h2>
+          </div>
+
+          <div class="grid gap-8 md:grid-cols-3">
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
+              <h3 class="mb-4 font-display text-2xl font-semibold text-white">Креаторы</h3>
+              <p class="text-slate-300 leading-relaxed">Блогеры, ютуберы и инфлюенсеры. Создавайте контент-планы, обложки и сценарии в одном окне.</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
+              <h3 class="mb-4 font-display text-2xl font-semibold text-white">Маркетологи</h3>
+              <p class="text-slate-300 leading-relaxed">SMM-специалисты и таргетологи. Генерируйте креативы и рекламные тексты в промышленных масштабах.</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
+              <h3 class="mb-4 font-display text-2xl font-semibold text-white">Бизнес</h3>
+              <p class="text-slate-300 leading-relaxed">Предприниматели и стартапы. Экономьте на производстве контента без потери качества.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="py-24">
+        <div class="mx-auto max-w-7xl px-6">
+          <div class="mb-16 text-center">
+            <h2 class="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Простые тарифы</h2>
+            <p class="mt-4 text-lg text-slate-600">Начните бесплатно, масштабируйтесь по мере роста</p>
+          </div>
+
+          <div class="grid gap-8 md:grid-cols-3 items-center">
+            <div class="rounded-3xl glass p-8">
+              <h3 class="font-display text-xl font-semibold text-slate-900">Free</h3>
+              <div class="mt-4 flex items-baseline text-4xl font-bold text-slate-900">$0<span class="ml-1 text-base font-medium text-slate-500">/мес</span></div>
+              <p class="mt-4 text-sm text-slate-500">Для старта и тестирования платформы</p>
+              <ul class="mt-8 space-y-4">
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>100 генераций текста</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>10 изображений</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>Базовые модели ИИ</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>История за 7 дней</li>
+              </ul>
+              <button data-auth-open class="mt-8 w-full rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50">Начать бесплатно</button>
+            </div>
+
+            <div class="relative rounded-3xl bg-slate-900 p-8 shadow-2xl shadow-indigo-500/20 md:-translate-y-4">
+              <div class="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 px-4 py-1 text-xs font-medium text-white">Популярный</div>
+              <h3 class="font-display text-xl font-semibold text-white">Plus</h3>
+              <div class="mt-4 flex items-baseline text-4xl font-bold text-white">$15<span class="ml-1 text-base font-medium text-slate-400">/мес</span></div>
+              <p class="mt-4 text-sm text-slate-400">Для активных креаторов</p>
+              <ul class="mt-8 space-y-4">
+                <li class="flex items-center gap-3 text-sm text-slate-300"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-400"></i>Безлимитный текст</li>
+                <li class="flex items-center gap-3 text-sm text-slate-300"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-400"></i>500 изображений</li>
+                <li class="flex items-center gap-3 text-sm text-slate-300"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-400"></i>Продвинутые модели ИИ</li>
+                <li class="flex items-center gap-3 text-sm text-slate-300"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-400"></i>Генерация аудио</li>
+                <li class="flex items-center gap-3 text-sm text-slate-300"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-400"></i>История за 30 дней</li>
+              </ul>
+              <button data-auth-open class="mt-8 w-full rounded-xl bg-indigo-500 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-600">Выбрать Plus</button>
+            </div>
+
+            <div class="rounded-3xl glass p-8">
+              <h3 class="font-display text-xl font-semibold text-slate-900">Pro</h3>
+              <div class="mt-4 flex items-baseline text-4xl font-bold text-slate-900">$49<span class="ml-1 text-base font-medium text-slate-500">/мес</span></div>
+              <p class="mt-4 text-sm text-slate-500">Для команд и агентств</p>
+              <ul class="mt-8 space-y-4">
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>Всё из Plus</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>Безлимитные изображения</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>Генерация видео</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>API доступ</li>
+                <li class="flex items-center gap-3 text-sm text-slate-600"><i data-lucide="check-circle-2" class="h-5 w-5 text-indigo-500"></i>Вечная история</li>
+              </ul>
+              <button data-auth-open class="mt-8 w-full rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50">Выбрать Pro</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-24 bg-white/50 border-y border-slate-200/50">
+        <div class="mx-auto max-w-7xl px-6">
+          <div class="mb-16 text-center">
+            <h2 class="font-display text-3xl font-bold tracking-tight text-slate-900">Как это работает</h2>
+          </div>
+
+          <div class="grid gap-8 md:grid-cols-3 relative">
+            <div class="hidden md:block absolute top-1/2 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-indigo-500/0 via-indigo-500/20 to-indigo-500/0 -translate-y-1/2 z-0"></div>
+
+            <div class="relative z-10 flex flex-col items-center text-center">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl shadow-indigo-500/10 border border-slate-100 font-display text-xl font-bold text-indigo-600 mb-6">01</div>
+              <h3 class="font-display text-xl font-semibold text-slate-900 mb-3">Выберите формат</h3>
+              <p class="text-slate-600">Текст, картинка или видео — решите, что вам нужно создать.</p>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center text-center">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl shadow-indigo-500/10 border border-slate-100 font-display text-xl font-bold text-indigo-600 mb-6">02</div>
+              <h3 class="font-display text-xl font-semibold text-slate-900 mb-3">Опишите идею</h3>
+              <p class="text-slate-600">Просто напишите промпт. ИИ поймет контекст и предложит варианты.</p>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center text-center">
+              <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl shadow-indigo-500/10 border border-slate-100 font-display text-xl font-bold text-indigo-600 mb-6">03</div>
+              <h3 class="font-display text-xl font-semibold text-slate-900 mb-3">Готово</h3>
+              <p class="text-slate-600">Скачайте результат или сразу опубликуйте в свои соцсети.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-24" id="faq">
+        <div class="mx-auto max-w-3xl px-6">
+          <div class="mb-16 text-center">
+            <h2 class="font-display text-3xl font-bold tracking-tight text-slate-900">Частые вопросы</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="rounded-2xl glass p-6">
+              <h3 class="font-display text-lg font-semibold text-slate-900">Что такое WIOP?</h3>
+              <p class="mt-2 text-slate-600">WIOP — это единая платформа на базе ИИ для создания любого типа контента: текстов, изображений, видео и аудио.</p>
+            </div>
+            <div class="rounded-2xl glass p-6">
+              <h3 class="font-display text-lg font-semibold text-slate-900">Есть ли бесплатная версия?</h3>
+              <p class="mt-2 text-slate-600">Да, у нас есть тариф Free, который позволяет ознакомиться с базовыми функциями платформы.</p>
+            </div>
+            <div class="rounded-2xl glass p-6">
+              <h3 class="font-display text-lg font-semibold text-slate-900">Кому принадлежат права на сгенерированный контент?</h3>
+              <p class="mt-2 text-slate-600">Все права на созданный контент принадлежат вам. Вы можете использовать его в коммерческих целях.</p>
+            </div>
+            <div class="rounded-2xl glass p-6">
+              <h3 class="font-display text-lg font-semibold text-slate-900">Можно ли отменить подписку?</h3>
+              <p class="mt-2 text-slate-600">Да, вы можете отменить подписку в любой момент в настройках личного кабинета.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="py-24 relative overflow-hidden">
+        <div class="absolute inset-0 bg-indigo-600"></div>
+        <div class="orb bg-white/20 w-[400px] h-[400px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="relative mx-auto max-w-4xl px-6 text-center">
+          <h2 class="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl">Готовы создать свой лучший контент?</h2>
+          <p class="mt-6 text-lg text-indigo-100">Присоединяйтесь к тысячам креаторов, которые уже используют WIOP для масштабирования своих идей.</p>
+          <button data-auth-open class="mt-10 inline-flex h-14 items-center justify-center rounded-full bg-white px-8 text-base font-medium text-indigo-600 transition-all hover:bg-indigo-50 hover:shadow-xl hover:shadow-black/10">
+            Войти в платформу
+          </button>
         </div>
       </section>
     </main>
 
-    <footer class="footer glass" data-reveal>
-      <p>© <span id="year"></span> Liquid Content Studio</p>
-      <button class="btn btn-nav" type="button" data-auth-open>Войти</button>
+    <footer class="border-t border-slate-200/50 bg-white/50 py-12 backdrop-blur-md">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="flex flex-col items-center justify-between gap-6 md:flex-row">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="h-5 w-5 text-indigo-600"></i>
+            <span class="font-display text-xl font-bold text-slate-900">WIOP</span>
+          </div>
+          <div class="flex gap-6 text-sm text-slate-500">
+            <a href="#" class="hover:text-slate-900 transition-colors">Политика конфиденциальности</a>
+            <a href="#" class="hover:text-slate-900 transition-colors">Условия использования</a>
+          </div>
+          <p class="text-sm text-slate-500">© <span id="year"></span> WIOP. Все права защищены.</p>
+        </div>
+      </div>
     </footer>
 
-    <div id="authModal" class="auth-modal" hidden aria-hidden="true" aria-labelledby="authTitle">
-      <div class="auth-overlay" data-auth-close></div>
-      <section class="auth-dialog glass" role="dialog" aria-modal="true">
-        <button class="auth-close" type="button" aria-label="Закрыть" data-auth-close>×</button>
-        <p class="kicker">Access</p>
-        <h2 id="authTitle">Вход в Liquid Content Studio</h2>
+    <div id="authModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+      <div id="authBackdrop" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
 
-        <div class="auth-modes">
-          <button type="button" class="auth-mode active" data-auth-mode="login">Вход</button>
-          <button type="button" class="auth-mode" data-auth-mode="register">Регистрация</button>
+      <div class="relative w-full max-w-md overflow-hidden rounded-3xl bg-white/80 p-8 shadow-2xl backdrop-blur-xl border border-white/50">
+        <button id="authClose" class="absolute right-6 top-6 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" aria-label="Закрыть">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+
+        <div class="mb-8 text-center">
+          <h2 id="authTitle" class="text-2xl font-bold tracking-tight text-slate-900">С возвращением</h2>
+          <p id="authSubtitle" class="mt-2 text-sm text-slate-500">Войдите, чтобы продолжить работу в WIOP</p>
         </div>
 
-        <form id="authForm" class="auth-form">
-          <label>
-            Email
-            <input id="authEmail" type="email" required placeholder="name@email.com" />
-          </label>
-          <label>
-            Пароль
-            <input id="authPassword" type="password" minlength="8" required placeholder="Минимум 8 символов" />
-          </label>
+        <div class="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+          <button id="modeLogin" class="rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm">Вход</button>
+          <button id="modeRegister" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-500">Регистрация</button>
+        </div>
 
-          <div id="registerFields" class="register-fields hidden">
-            <label>
-              Имя
-              <input id="authFullName" type="text" placeholder="Ваше имя" />
-            </label>
-            <label>
-              Username
-              <input id="authUsername" type="text" placeholder="@username" />
-            </label>
+        <form id="authForm" class="space-y-4">
+          <div id="authError" class="hidden rounded-xl bg-red-50 p-3 text-sm text-red-600"></div>
+
+          <div id="registerFields" class="hidden space-y-4">
+            <div class="relative">
+              <i data-lucide="user" class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"></i>
+              <input id="authFullName" type="text" placeholder="Полное имя" class="w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20" />
+            </div>
+            <div class="relative">
+              <i data-lucide="at-sign" class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"></i>
+              <input id="authUsername" type="text" placeholder="Имя пользователя" class="w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20" />
+            </div>
           </div>
 
-          <button id="authSubmit" class="btn btn-primary" type="submit">Войти</button>
-          <p id="authMessage" class="auth-message" aria-live="polite"></p>
+          <div class="relative">
+            <i data-lucide="mail" class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"></i>
+            <input id="authEmail" type="email" placeholder="Email" class="w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20" required />
+          </div>
+
+          <div class="relative">
+            <i data-lucide="lock" class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"></i>
+            <input id="authPassword" type="password" placeholder="Пароль" minlength="8" class="w-full rounded-xl border border-slate-200 bg-white/50 py-3 pl-10 pr-4 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20" required />
+          </div>
+
+          <button id="authSubmit" type="submit" class="mt-6 flex w-full items-center justify-center rounded-xl bg-indigo-600 py-3 text-sm font-medium text-white transition-all hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-70">
+            Войти
+          </button>
         </form>
-      </section>
+
+        <div class="mt-6 text-center text-sm text-slate-500">
+          <span id="authSwitchText">Нет аккаунта?</span>
+          <button id="authSwitchBtn" type="button" class="ml-1 font-medium text-indigo-600 hover:text-indigo-700 hover:underline">Зарегистрироваться</button>
+        </div>
+      </div>
     </div>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="/landing.js" defer></script>
   </body>
 </html>
