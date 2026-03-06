@@ -1282,15 +1282,19 @@ function buildAdminOverview(db) {
   const users = db.users;
   const payments = db.payments;
   const leads = db.leads;
+  const generations = Array.isArray(db.generations) ? db.generations : [];
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const thirtyDaysAgo = now.getTime() - 30 * 24 * 60 * 60 * 1000;
 
   const totalUsers = users.length;
   const activeUsers = users.filter((user) => user.status === "active").length;
   const blockedUsers = users.filter((user) => user.status === "blocked").length;
   const paidUsers = users.filter((user) => user.planId !== "free" && user.planStatus === "active").length;
+  const activeProUsers = users.filter((user) => user.planId === "pro" && user.planStatus === "active").length;
   const newUsers30d = users.filter((user) => toTimestamp(user.createdAt) >= thirtyDaysAgo).length;
+  const generationsToday = generations.filter((entry) => toTimestamp(entry.createdAt) >= dayStart).length;
 
   const successfulPayments = payments.filter((payment) => PAYMENT_SUCCESS_STATUSES.has(payment.status));
   const failedPayments = payments.filter((payment) => PAYMENT_FAILURE_STATUSES.has(payment.status));
@@ -1317,7 +1321,12 @@ function buildAdminOverview(db) {
       activeUsers,
       blockedUsers,
       paidUsers,
+      activeProUsers,
       newUsers30d
+    },
+    generations: {
+      totalGenerations: generations.length,
+      generationsToday
     },
     payments: {
       totalPayments: payments.length,

@@ -9,6 +9,14 @@ const CONTENT_TYPES = {
   post: "Готовый пост"
 };
 
+const PROMPT_PLACEHOLDERS = {
+  text: "Опишите, о чем написать текст...",
+  image: "Опишите изображение для генерации...",
+  video: "Опишите видео для генерации...",
+  audio: "Введите текст для озвучки...",
+  post: "Опишите тему для поста..."
+};
+
 const PLAN_CONFIG = {
   free: {
     id: "free",
@@ -123,11 +131,15 @@ const elements = {
   selectedTypeBadge: document.getElementById("selectedTypeBadge"),
   generatorForm: document.getElementById("generatorForm"),
   generateSubmitBtn: document.querySelector("#generatorForm button[type='submit']"),
+  generateSendIcon: document.querySelector("#generatorForm .send-icon"),
+  generateMicIcon: document.querySelector("#generatorForm .mic-icon"),
   promptInput: document.getElementById("promptInput"),
   toneSelect: document.getElementById("toneSelect"),
   platformSelect: document.getElementById("platformSelect"),
   generatorMessage: document.getElementById("generatorMessage"),
   latestOutput: document.getElementById("latestOutput"),
+  loadingState: document.getElementById("loadingState"),
+  welcomeLogo: document.querySelector(".welcome-logo"),
   historySearch: document.getElementById("historySearch"),
   historyFilter: document.getElementById("historyFilter"),
   historyList: document.getElementById("historyList"),
@@ -204,6 +216,7 @@ function init() {
   applyAuthMode();
   ensureSelectedType();
   resizePromptInput();
+  updateComposerButtonState();
   renderAll();
   if (!state.authToken) {
     setActiveView("profile");
@@ -251,6 +264,7 @@ function bindEvents() {
   if (elements.quickSearchActionBtn) {
     elements.quickSearchActionBtn.addEventListener("click", () => {
       setSelectedType("text");
+      elements.promptInput.placeholder = "Что вы хотите найти?";
       elements.promptInput.focus();
     });
   }
@@ -291,19 +305,41 @@ function bindEvents() {
     });
   });
 
-  elements.promptInput.addEventListener("input", () => {
-    resizePromptInput();
-  });
+  if (elements.promptInput) {
+    elements.promptInput.addEventListener("input", () => {
+      resizePromptInput();
+      updateComposerButtonState();
+    });
 
-  elements.generatorForm.addEventListener("submit", onGenerate);
+    elements.promptInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.shiftKey || event.isComposing) {
+        return;
+      }
 
-  elements.historySearch.addEventListener("input", renderHistoryList);
-  elements.historyFilter.addEventListener("change", renderHistoryList);
-  elements.historyList.addEventListener("click", onHistoryAction);
+      event.preventDefault();
+      if (!elements.promptInput.value.trim() || !elements.generatorForm) {
+        return;
+      }
 
-  elements.clearHistoryBtn.addEventListener("click", () => {
-    void onClearHistory();
-  });
+      elements.generatorForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    });
+  }
+
+  if (elements.generatorForm) {
+    elements.generatorForm.addEventListener("submit", onGenerate);
+  }
+
+  if (elements.historySearch && elements.historyFilter && elements.historyList) {
+    elements.historySearch.addEventListener("input", renderHistoryList);
+    elements.historyFilter.addEventListener("change", renderHistoryList);
+    elements.historyList.addEventListener("click", onHistoryAction);
+  }
+
+  if (elements.clearHistoryBtn) {
+    elements.clearHistoryBtn.addEventListener("click", () => {
+      void onClearHistory();
+    });
+  }
 
   if (elements.plansGrid) {
     elements.plansGrid.addEventListener("click", (event) => {
@@ -515,6 +551,7 @@ function setSelectedType(type) {
   state.selectedType = type;
   saveState();
   renderTypeButtons();
+  updateComposerButtonState();
   clearMessage(elements.generatorMessage);
 }
 
@@ -556,7 +593,7 @@ function applyViewFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const view = params.get("view");
   const profileTab = params.get("profileTab");
-  const allowed = new Set(["create", "history", "profile"]);
+  const allowed = new Set(["create", "profile"]);
   if (isAdmin()) {
     allowed.add("admin");
   }
@@ -1085,7 +1122,7 @@ async function onGenerate(event) {
 
   const prompt = elements.promptInput.value.trim();
   if (!prompt) {
-    setMessage(elements.generatorMessage, "Введите промпт перед генерацией.", "error");
+    clearMessage(elements.generatorMessage);
     return;
   }
 
@@ -1271,6 +1308,7 @@ function renderAll() {
   renderNavigation();
   renderAuthPanel();
   renderTypeButtons();
+  updateComposerButtonState();
   renderLatestOutput();
   renderHistoryList();
   renderPlans();
@@ -1307,6 +1345,11 @@ function renderNavigation() {
   const activeView = elements.views.find((view) => view.classList.contains("active"))?.id.replace("view-", "") || "create";
   const loggedIn = Boolean(currentUser);
   elements.navViewButtons.forEach((button) => {
+    if (button.hasAttribute("data-nav-internal")) {
+      button.classList.add("hidden");
+      return;
+    }
+
     const viewId = button.dataset.navView;
     const hiddenForGuest = !loggedIn && (viewId === "create" || viewId === "history" || viewId === "admin");
     const hiddenForRole = viewId === "admin" && !isAdmin();
@@ -1395,25 +1438,49 @@ function renderTypeButtons() {
     };
     elements.selectedTypeBadge.textContent = badgeMap[selected] || "Текст";
   }
+
+  if (elements.promptInput) {
+    elements.promptInput.placeholder = PROMPT_PLACEHOLDERS[selected] || "Спросите что угодно...";
+  }
 }
 
 function renderLatestOutput() {
+  updateLoadingState(generationInFlight);
+
+  if (!elements.latestOutput) {
+    return;
+  }
+
+  if (generationInFlight) {
+    elements.latestOutput.classList.add("empty");
+    elements.latestOutput.innerHTML = "";
+    return;
+  }
+
   const latest = getLatestItem();
+  if (elements.welcomeLogo) {
+    elements.welcomeLogo.classList.toggle("hidden", Boolean(latest));
+  }
   if (!latest) {
     elements.latestOutput.classList.add("empty");
-    elements.latestOutput.innerHTML = "<p>Пока нет генераций. Введите запрос ниже и нажмите «Генерировать».</p>";
+    elements.latestOutput.innerHTML = "";
     return;
   }
 
   elements.latestOutput.classList.remove("empty");
-  elements.latestOutput.innerHTML = `
-    <div class="output-meta">
-      <span class="chip">${escapeHtml(CONTENT_TYPES[latest.type])}</span>
-      <span class="chip">${escapeHtml(latest.platform)}</span>
-    </div>
-    <p class="output-title">${escapeHtml(latest.title)}</p>
-    <p class="output-text">${escapeHtml(latest.output)}</p>
-  `;
+
+  const mediaUrl = extractMediaUrl(latest.output);
+  let contentMarkup = `<p class="output-text">${escapeHtml(latest.output)}</p>`;
+
+  if (latest.type === "image" && mediaUrl) {
+    contentMarkup = `<img class="output-media" src="${escapeHtml(mediaUrl)}" alt="Generated image" />`;
+  } else if (latest.type === "video" && mediaUrl) {
+    contentMarkup = `<video class="output-media" controls playsinline src="${escapeHtml(mediaUrl)}"></video>`;
+  } else if (latest.type === "audio" && mediaUrl) {
+    contentMarkup = `<audio controls src="${escapeHtml(mediaUrl)}"></audio>`;
+  }
+
+  elements.latestOutput.innerHTML = contentMarkup;
 }
 
 function renderHistoryList() {
@@ -1681,7 +1748,8 @@ function renderStats() {
 function renderAdminTab() {
   const show = isAdmin();
   elements.adminTabButtons.forEach((button) => {
-    button.classList.toggle("hidden", !show);
+    const internal = button.hasAttribute("data-nav-internal");
+    button.classList.toggle("hidden", internal || !show);
   });
   if (elements.profileAdminAccessBtn) {
     elements.profileAdminAccessBtn.classList.toggle("hidden", !show);
@@ -1713,16 +1781,16 @@ function renderAdminMetrics() {
   if (!data) {
     elements.adminMetricsGrid.innerHTML = `
       <article class="stat-card"><p class="stat-label">Всего пользователей</p><p class="stat-value">-</p></article>
-      <article class="stat-card"><p class="stat-label">Активные подписки (Pro/Plus)</p><p class="stat-value">-</p></article>
-      <article class="stat-card"><p class="stat-label">Выручка за месяц</p><p class="stat-value">-</p></article>
+      <article class="stat-card"><p class="stat-label">Генераций за сегодня</p><p class="stat-value">-</p></article>
+      <article class="stat-card"><p class="stat-label">Активные подписки (Pro)</p><p class="stat-value">-</p></article>
     `;
     return;
   }
 
   const cards = [
-    { label: "Всего клиентов", value: String(data.users.totalUsers) },
-    { label: "Платные подписки (Pro/Plus)", value: String(data.users.paidUsers) },
-    { label: "Выручка за текущий месяц", value: formatMoney(data.payments.revenueThisMonth) }
+    { label: "Всего пользователей", value: String(data.users?.totalUsers || 0) },
+    { label: "Генераций за сегодня", value: String(data.generations?.generationsToday || 0) },
+    { label: "Активные подписки (Pro)", value: String(data.users?.activeProUsers || 0) }
   ];
 
   elements.adminMetricsGrid.innerHTML = cards
@@ -1758,11 +1826,12 @@ function renderAdminRecentUsers() {
     .map((user) => {
       const name = user.profile?.fullName || user.profile?.username || "Без имени";
       const plan = normalizePlanId(user.planId) || "free";
+      const planLabel = plan === "pro" ? "Pro" : plan === "plus" ? "Plus" : "Free";
       return `
         <tr>
           <td>${escapeHtml(name)}</td>
           <td>${escapeHtml(user.email || "-")}</td>
-          <td>${escapeHtml(plan.toUpperCase())}</td>
+          <td><span class="admin-plan-badge ${escapeHtml(plan)}">${escapeHtml(planLabel)}</span></td>
           <td>${escapeHtml(formatDate(user.createdAt, { dateStyle: "medium" }))}</td>
         </tr>
       `;
@@ -1906,6 +1975,10 @@ function renderAdminLeads() {
 function setActiveView(viewId) {
   if (!viewId) {
     return;
+  }
+
+  if (viewId === "history") {
+    viewId = "create";
   }
 
   if (!currentUser && viewId !== "profile") {
@@ -2107,6 +2180,7 @@ function normalizeHistoryItem(item) {
 
 function setGenerateButtonState(loading) {
   if (!elements.generateSubmitBtn) {
+    updateLoadingState(loading);
     return;
   }
 
@@ -2114,6 +2188,47 @@ function setGenerateButtonState(loading) {
   elements.generateSubmitBtn.classList.toggle("loading", Boolean(loading));
   elements.generateSubmitBtn.setAttribute("aria-label", loading ? "Генерируем..." : "Сгенерировать");
   elements.generateSubmitBtn.title = loading ? "Генерируем..." : "Сгенерировать";
+  updateComposerButtonState();
+  updateLoadingState(loading);
+}
+
+function updateComposerButtonState() {
+  if (!elements.generateSubmitBtn) {
+    return;
+  }
+
+  const hasPrompt = Boolean(elements.promptInput?.value.trim());
+  const canSend = hasPrompt && !generationInFlight;
+
+  elements.generateSubmitBtn.classList.toggle("can-send", canSend);
+  elements.generateSubmitBtn.disabled = generationInFlight;
+  elements.generateSubmitBtn.setAttribute("aria-label", canSend ? "Отправить" : "Голосовой ввод");
+  elements.generateSubmitBtn.title = canSend ? "Отправить" : "Голосовой ввод";
+
+  if (elements.generateSendIcon) {
+    elements.generateSendIcon.classList.toggle("hidden", !canSend);
+  }
+  if (elements.generateMicIcon) {
+    elements.generateMicIcon.classList.toggle("hidden", canSend);
+  }
+}
+
+function updateLoadingState(loading) {
+  if (elements.loadingState) {
+    elements.loadingState.classList.toggle("hidden", !loading);
+  }
+  if (elements.welcomeLogo) {
+    elements.welcomeLogo.classList.toggle("hidden", loading);
+  }
+}
+
+function extractMediaUrl(value) {
+  const text = String(value || "");
+  const match = text.match(/https?:\/\/[^\s"'<>]+/i);
+  if (!match) {
+    return "";
+  }
+  return match[0];
 }
 
 function redirectToAuthGate() {
