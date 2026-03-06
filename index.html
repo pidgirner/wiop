@@ -2,394 +2,310 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#080a10" />
+    <meta name="theme-color" content="#000000" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Liquid Studio" />
-    <title>Liquid Content Studio</title>
+    <meta name="apple-mobile-web-app-title" content="WIOP" />
+    <title>WIOP Chat</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
-
-    <div class="app-shell">
-      <header class="chat-topbar glass-panel">
-        <button id="menuToggleBtn" class="icon-btn" type="button" aria-label="Открыть меню">☰</button>
-
-        <div class="mode-switch glass-lite" role="tablist" aria-label="Режимы">
-          <button id="modeChatBtn" class="mode-btn active" type="button">Chat</button>
-          <button id="modeVoiceBtn" class="mode-btn" type="button" disabled>Voice</button>
-        </div>
-
-        <div class="topbar-right">
-          <span id="activePlanBadge" class="plan-badge">FREE</span>
-          <span id="authStatusBadge" class="auth-pill">Гость</span>
-          <button id="installAppBtn" class="ghost-btn install-btn hidden" type="button">Установить</button>
-        </div>
-      </header>
-
-      <div class="usage-wrap glass-lite">
-        <span id="usageText">0 / 30 в этом месяце</span>
-        <div class="usage-track">
-          <div id="usageFill" class="usage-fill"></div>
+    <div class="phone">
+      <div class="statusbar">
+        <div class="time">9:41</div>
+        <div class="icons">
+          <div class="signal-bars">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <svg viewBox="0 0 24 18" fill="white" class="wifi-icon" aria-hidden="true">
+            <path d="M12 4C8.4 4 5.2 5.6 3 8.2L5 10.4C6.7 8.3 9.2 7 12 7s5.3 1.3 7 3.4l2-2.2C18.8 5.6 15.6 4 12 4z" opacity="0.4" />
+            <path d="M12 8c-2.4 0-4.5 1-6 2.6l2 2.2c1-1.1 2.5-1.8 4-1.8s3 .7 4 1.8l2-2.2C16.5 9 14.4 8 12 8z" opacity="0.7" />
+            <path d="M12 12c-1.2 0-2.2.5-3 1.3l3 3.3 3-3.3C14.2 12.5 13.2 12 12 12z" />
+          </svg>
+          <div class="battery"><div class="battery-fill"></div></div>
         </div>
       </div>
 
-      <div id="menuBackdrop" class="menu-backdrop hidden"></div>
-      <aside id="sideMenu" class="side-menu glass-panel" aria-hidden="true">
-        <div class="side-head">
-          <div>
-            <p class="eyebrow">Workspace</p>
-            <p id="menuIdentity" class="side-identity">Аккаунт</p>
-          </div>
-          <button id="menuCloseBtn" class="icon-btn small" type="button" aria-label="Закрыть меню">✕</button>
+      <header class="topnav">
+        <button id="menuToggleBtn" class="hamburger" type="button" aria-label="Открыть меню">
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="toggle-group" role="tablist" aria-label="Режимы">
+          <button id="modeChatBtn" class="toggle-btn active" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Chat
+          </button>
+          <button id="modeVoiceBtn" class="toggle-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+            Voice
+          </button>
         </div>
 
-        <div class="menu-group">
+        <button id="avatarMenuBtn" class="avatar-btn" type="button" aria-label="Профиль и меню">
+          <svg viewBox="0 0 24 24" fill="white" aria-hidden="true">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+          </svg>
+        </button>
+      </header>
+
+      <div class="runtime-meta" aria-hidden="true">
+        <span id="activePlanBadge">FREE</span>
+        <span id="authStatusBadge">Гость</span>
+        <button id="installAppBtn" class="hidden" type="button">Установить</button>
+        <span id="usageText">0 / 30</span>
+        <div class="usage-track"><div id="usageFill" class="usage-fill"></div></div>
+      </div>
+
+      <div id="menuBackdrop" class="menu-backdrop hidden"></div>
+      <aside id="sideMenu" class="side-menu" aria-hidden="true">
+        <div class="side-head">
+          <p id="menuIdentity">Аккаунт</p>
+          <button id="menuCloseBtn" class="close-btn" type="button" aria-label="Закрыть">✕</button>
+        </div>
+
+        <div class="side-section">
           <button class="menu-link active" data-menu-view="create" type="button">Чат</button>
           <button class="menu-link" data-menu-view="profile" type="button">Профиль</button>
           <button class="menu-link" data-menu-view="plan" type="button">Тариф</button>
           <button id="adminTabBtn" class="menu-link hidden" data-menu-view="admin" type="button">Админ</button>
         </div>
 
-        <div class="menu-group">
-          <p class="menu-label">История</p>
+        <div class="side-section">
+          <p class="side-label">История по категориям</p>
           <button class="menu-filter active" data-menu-history="all" type="button">Все</button>
-          <button class="menu-filter" data-menu-history="text" type="button">Тексты</button>
+          <button class="menu-filter" data-menu-history="text" type="button">Текст</button>
           <button class="menu-filter" data-menu-history="image" type="button">Картинки</button>
           <button class="menu-filter" data-menu-history="video" type="button">Видео</button>
           <button class="menu-filter" data-menu-history="audio" type="button">Аудио</button>
           <button class="menu-filter" data-menu-history="post" type="button">Посты</button>
         </div>
 
-        <div class="menu-actions">
-          <button id="menuRefreshBillingBtn" class="ghost-btn" type="button">Обновить оплату</button>
-          <button id="menuLogoutBtn" class="ghost-btn danger" type="button">Выйти</button>
+        <div class="side-actions">
+          <button id="menuRefreshBillingBtn" class="menu-link" type="button">Обновить оплату</button>
+          <button id="menuLogoutBtn" class="menu-link danger" type="button">Выйти</button>
         </div>
       </aside>
 
-      <main class="main-stage">
+      <main class="main">
         <section class="view active" id="view-create">
-          <article class="glass-panel panel chat-panel">
-            <div class="chat-canvas">
-              <div class="chat-logo"></div>
-              <div id="latestOutput" class="output-card empty">
-                <p>Пока нет генераций. Введи запрос ниже и нажми «Генерировать».</p>
-              </div>
-            </div>
+          <div class="main-empty">
+            <img class="grok-logo" src="/icons/icon-192.png" alt="WIOP" />
+            <div id="latestOutput" class="latest-output empty"></div>
+          </div>
 
-            <form id="generatorForm" class="stack composer-stack">
-              <div id="contentTypeGroup" class="type-group type-carousel">
-                <button type="button" class="type-btn active" data-type="text">Текст</button>
-                <button type="button" class="type-btn" data-type="image">Картинка</button>
-                <button type="button" class="type-btn" data-type="video">Видео</button>
-                <button type="button" class="type-btn" data-type="audio">Аудио</button>
-                <button type="button" class="type-btn" data-type="post">Пост</button>
+          <div class="bottom">
+            <form id="generatorForm" class="create-form">
+              <div id="contentTypeGroup" class="native-type-group" aria-hidden="true">
+                <button type="button" class="type-btn active" data-type="text">Text</button>
+                <button type="button" class="type-btn" data-type="image">Image</button>
+                <button type="button" class="type-btn" data-type="video">Video</button>
+                <button type="button" class="type-btn" data-type="audio">Audio</button>
+                <button type="button" class="type-btn" data-type="post">Post</button>
               </div>
 
-              <div class="composer-shell glass-lite">
+              <div class="quick-actions">
+                <button class="action-card" data-quick-type="audio" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>
+                  </svg>
+                  <span>Voice Mode</span>
+                </button>
+
+                <button class="action-card" data-quick-type="image" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                    <path d="M12 7h5M14.5 7v5"/>
+                  </svg>
+                  <span>Create Images</span>
+                </button>
+
+                <button class="action-card" data-quick-type="video" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="2" y="6" width="15" height="12" rx="2"/>
+                    <path d="M17 10l5-3v10l-5-3z"/>
+                  </svg>
+                  <span>Create Video</span>
+                </button>
+
+                <button class="action-card" data-quick-type="post" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M4 4h16v16H4z"/>
+                    <path d="M8 8h8M8 12h8M8 16h5"/>
+                  </svg>
+                  <span>Ready Post</span>
+                </button>
+              </div>
+
+              <div class="input-area">
                 <label class="sr-only" for="promptInput">Промпт</label>
-                <textarea
-                  id="promptInput"
-                  rows="2"
-                  placeholder="Ask anything..."
-                ></textarea>
+                <textarea id="promptInput" rows="2" placeholder="Ask Anything"></textarea>
 
-                <div class="composer-toolbar">
-                  <div class="inline-fields compact">
-                    <div>
-                      <label class="label" for="toneSelect">Тон</label>
-                      <select id="toneSelect">
-                        <option value="премиальный">Премиальный</option>
-                        <option value="дружелюбный">Дружелюбный</option>
-                        <option value="экспертный">Экспертный</option>
-                        <option value="агрессивный">Продажный</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label class="label" for="platformSelect">Платформа</label>
-                      <select id="platformSelect">
-                        <option value="Instagram">Instagram</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="Telegram">Telegram</option>
-                        <option value="LinkedIn">LinkedIn</option>
-                      </select>
-                    </div>
+                <div class="input-bottom">
+                  <div class="input-icons" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3.5 6L15 17H9l-.5-2C6.5 13.5 5 11.5 5 9a7 7 0 0 1 7-7z"/>
+                    </svg>
                   </div>
-                  <button type="submit" class="primary-btn composer-send">Генерировать</button>
+
+                  <div class="right-input">
+                    <div class="model-badge">
+                      <div class="model-dot"></div>
+                      <span id="selectedTypeBadge">Text</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M6 9l6 6 6-6"/>
+                      </svg>
+                    </div>
+                    <button class="mic-btn" type="submit" aria-label="Сгенерировать">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="22"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="hidden-controls" aria-hidden="true">
+                  <label for="toneSelect">Тон</label>
+                  <select id="toneSelect">
+                    <option value="премиальный">Премиальный</option>
+                    <option value="дружелюбный">Дружелюбный</option>
+                    <option value="экспертный">Экспертный</option>
+                    <option value="агрессивный">Продажный</option>
+                  </select>
+
+                  <label for="platformSelect">Платформа</label>
+                  <select id="platformSelect">
+                    <option value="Instagram">Instagram</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Telegram">Telegram</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                  </select>
                 </div>
               </div>
 
               <p id="generatorMessage" class="message" aria-live="polite"></p>
             </form>
-          </article>
+
+            <div class="home-indicator"></div>
+          </div>
         </section>
 
         <section class="view" id="view-history">
-          <article class="glass-panel panel">
-            <div class="panel-head split">
-              <div>
-                <h2>История генераций</h2>
-                <p>Фильтруй генерации по категориям: текст, картинки, видео, аудио и посты.</p>
-              </div>
-              <button id="clearHistoryBtn" class="ghost-btn" type="button">Очистить историю</button>
+          <article class="panel-card">
+            <div class="panel-head">
+              <h2>История генераций</h2>
+              <button id="clearHistoryBtn" class="mini-btn" type="button">Очистить</button>
             </div>
-
             <div class="history-controls">
-              <input id="historySearch" type="search" placeholder="Поиск по промпту или результату" />
+              <input id="historySearch" type="search" placeholder="Поиск" />
               <select id="historyFilter">
-                <option value="all">Все категории</option>
-                <option value="text">Тексты</option>
+                <option value="all">Все</option>
+                <option value="text">Текст</option>
                 <option value="image">Картинки</option>
                 <option value="video">Видео</option>
                 <option value="audio">Аудио</option>
                 <option value="post">Посты</option>
               </select>
             </div>
-
             <div id="historyList" class="history-list"></div>
           </article>
         </section>
 
         <section class="view" id="view-profile">
-          <article class="glass-panel panel">
-            <div class="panel-head">
-              <h2>Профиль</h2>
-              <p>Настройки аккаунта и персональные данные.</p>
+          <article class="panel-card">
+            <div id="authLoggedIn" class="stack">
+              <p id="authIdentity"></p>
+              <div class="row-btns">
+                <button id="manageBillingBtn" class="mini-btn" type="button">Обновить оплату</button>
+                <button id="logoutBtn" class="mini-btn danger" type="button">Выйти</button>
+              </div>
             </div>
 
-            <section class="glass-lite auth-panel">
-              <div id="authLoggedIn" class="stack">
-                <p id="authIdentity" class="auth-identity"></p>
-                <div class="auth-actions">
-                  <button id="manageBillingBtn" type="button" class="ghost-btn">Обновить статус оплаты</button>
-                  <button id="logoutBtn" type="button" class="ghost-btn danger">Выйти</button>
-                </div>
+            <div id="authLoggedOut" class="stack hidden">
+              <div class="auth-mode-group">
+                <button type="button" class="auth-mode-btn active" data-auth-mode="login">Вход</button>
+                <button type="button" class="auth-mode-btn" data-auth-mode="register">Регистрация</button>
               </div>
-
-              <div id="authLoggedOut" class="stack hidden">
-                <div class="auth-mode-group">
-                  <button type="button" class="auth-mode-btn active" data-auth-mode="login">Вход</button>
-                  <button type="button" class="auth-mode-btn" data-auth-mode="register">Регистрация</button>
+              <form id="authForm" class="stack">
+                <input id="authEmail" type="email" placeholder="Email" required />
+                <input id="authPassword" type="password" minlength="8" placeholder="Пароль" required />
+                <div class="auth-register-only hidden">
+                  <input id="authFullName" type="text" placeholder="Имя" />
+                  <input id="authUsername" type="text" placeholder="Username" />
                 </div>
-
-                <form id="authForm" class="stack">
-                  <div class="inline-fields">
-                    <div>
-                      <label class="label" for="authEmail">Email</label>
-                      <input id="authEmail" type="email" placeholder="name@email.com" required />
-                    </div>
-                    <div>
-                      <label class="label" for="authPassword">Пароль</label>
-                      <input id="authPassword" type="password" minlength="8" placeholder="Минимум 8 символов" required />
-                    </div>
-                  </div>
-
-                  <div class="inline-fields auth-register-only">
-                    <div>
-                      <label class="label" for="authFullName">Имя</label>
-                      <input id="authFullName" type="text" placeholder="Ваше имя" />
-                    </div>
-                    <div>
-                      <label class="label" for="authUsername">Username</label>
-                      <input id="authUsername" type="text" placeholder="@username" />
-                    </div>
-                  </div>
-
-                  <button id="authSubmitBtn" type="submit" class="primary-btn">Войти</button>
-                  <p id="authMessage" class="message" aria-live="polite"></p>
-                </form>
-              </div>
-            </section>
-
-            <div class="profile-wrap">
-              <div class="avatar" id="avatarPreview">LC</div>
-
-              <form id="profileForm" class="stack grow">
-                <div class="inline-fields">
-                  <div>
-                    <label class="label" for="fullName">Имя</label>
-                    <input id="fullName" type="text" placeholder="Ваше имя" />
-                  </div>
-                  <div>
-                    <label class="label" for="username">Username</label>
-                    <input id="username" type="text" placeholder="@username" />
-                  </div>
-                </div>
-
-                <div class="inline-fields">
-                  <div>
-                    <label class="label" for="email">Email</label>
-                    <input id="email" type="email" placeholder="name@email.com" />
-                  </div>
-                  <div>
-                    <label class="label" for="website">Сайт</label>
-                    <input id="website" type="url" placeholder="https://" />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="label" for="bio">О себе</label>
-                  <textarea id="bio" rows="3" placeholder="Короткое описание, ниша, стиль"></textarea>
-                </div>
-
-                <button type="submit" class="primary-btn">Сохранить профиль</button>
-                <p id="profileMessage" class="message" aria-live="polite"></p>
+                <button id="authSubmitBtn" type="submit" class="mini-btn">Войти</button>
+                <p id="authMessage" class="message" aria-live="polite"></p>
               </form>
             </div>
 
-            <div class="stats-grid" id="statsGrid"></div>
+            <form id="profileForm" class="stack">
+              <input id="fullName" type="text" placeholder="Имя" />
+              <input id="username" type="text" placeholder="Username" />
+              <input id="email" type="email" placeholder="Email" />
+              <input id="website" type="url" placeholder="Сайт" />
+              <textarea id="bio" rows="3" placeholder="О себе"></textarea>
+              <button type="submit" class="mini-btn">Сохранить профиль</button>
+              <p id="profileMessage" class="message" aria-live="polite"></p>
+            </form>
+
+            <div id="avatarPreview" class="avatar-preview">LC</div>
+            <div id="statsGrid" class="stats-grid"></div>
           </article>
         </section>
 
         <section class="view" id="view-plan">
-          <article class="glass-panel panel">
-            <div class="panel-head split">
-              <div>
-                <h2>Тариф</h2>
-                <p>Выбирай план и управляй подпиской.</p>
-              </div>
-              <button id="planRefreshBillingBtn" type="button" class="ghost-btn">Проверить оплату</button>
+          <article class="panel-card">
+            <div class="panel-head">
+              <h2>Тариф</h2>
+              <button id="planRefreshBillingBtn" class="mini-btn" type="button">Проверить оплату</button>
             </div>
-
             <div id="plansGrid" class="plans-grid"></div>
             <p id="billingMessage" class="message" aria-live="polite"></p>
           </article>
         </section>
 
         <section class="view" id="view-admin">
-          <article class="glass-panel panel">
-            <div class="panel-head split">
-              <div>
-                <h2>Админ панель</h2>
-                <p>Управление клиентами, подписками и аналитикой платежей.</p>
-              </div>
-              <button id="adminRefreshBtn" class="ghost-btn" type="button">Обновить данные</button>
+          <article class="panel-card admin-card">
+            <div class="panel-head">
+              <h2>Админ</h2>
+              <button id="adminRefreshBtn" class="mini-btn" type="button">Обновить</button>
             </div>
-
             <div id="adminMetricsGrid" class="stats-grid"></div>
-
-            <section class="glass-lite admin-section">
-              <div class="panel-head">
-                <h2>Клиенты</h2>
-                <p>Поиск и ручное управление планами и статусами.</p>
-              </div>
-
-              <div class="admin-controls">
-                <input id="adminUserSearch" type="search" placeholder="Поиск: email, имя, username" />
-                <select id="adminPlanFilter">
-                  <option value="">Все планы</option>
-                  <option value="free">Free</option>
-                  <option value="plus">Plus</option>
-                  <option value="pro">Pro</option>
-                </select>
-                <select id="adminRoleFilter">
-                  <option value="">Все роли</option>
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <select id="adminStatusFilter">
-                  <option value="">Любой статус</option>
-                  <option value="active">Активные</option>
-                  <option value="blocked">Заблокированные</option>
-                </select>
-              </div>
-
-              <div class="table-wrap">
-                <table class="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Пользователь</th>
-                      <th>Роль</th>
-                      <th>План</th>
-                      <th>Статус</th>
-                      <th>Создан</th>
-                      <th>Действие</th>
-                    </tr>
-                  </thead>
-                  <tbody id="adminUsersBody"></tbody>
-                </table>
-              </div>
-            </section>
-
-            <section class="glass-lite admin-section">
-              <div class="panel-head">
-                <h2>Платежи</h2>
-                <p>Последние платежные события из Cardlink.</p>
-              </div>
-
-              <div class="admin-controls compact">
-                <select id="adminPaymentStatusFilter">
-                  <option value="">Все статусы</option>
-                  <option value="SUCCESS">SUCCESS</option>
-                  <option value="OVERPAID">OVERPAID</option>
-                  <option value="UNDERPAID">UNDERPAID</option>
-                  <option value="PROCESS">PROCESS</option>
-                  <option value="NEW">NEW</option>
-                  <option value="FAIL">FAIL</option>
-                </select>
-              </div>
-
-              <div class="table-wrap">
-                <table class="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Дата</th>
-                      <th>Пользователь</th>
-                      <th>План</th>
-                      <th>Сумма</th>
-                      <th>Статус</th>
-                      <th>Order ID</th>
-                    </tr>
-                  </thead>
-                  <tbody id="adminPaymentsBody"></tbody>
-                </table>
-              </div>
-            </section>
-
-            <section class="glass-lite admin-section">
-              <div class="panel-head">
-                <h2>Лиды с лендинга</h2>
-                <p>Заявки потенциальных клиентов и их статус обработки.</p>
-              </div>
-
-              <div class="admin-controls compact">
-                <select id="adminLeadStatusFilter">
-                  <option value="">Все статусы</option>
-                  <option value="new">new</option>
-                  <option value="contacted">contacted</option>
-                  <option value="qualified">qualified</option>
-                  <option value="converted">converted</option>
-                  <option value="archived">archived</option>
-                </select>
-              </div>
-
-              <div class="table-wrap">
-                <table class="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Дата</th>
-                      <th>Контакт</th>
-                      <th>Компания</th>
-                      <th>Задача</th>
-                      <th>Статус</th>
-                      <th>Действие</th>
-                    </tr>
-                  </thead>
-                  <tbody id="adminLeadsBody"></tbody>
-                </table>
-              </div>
-            </section>
-
+            <div class="admin-controls">
+              <input id="adminUserSearch" type="search" placeholder="Поиск" />
+              <select id="adminPlanFilter"><option value="">Все планы</option><option value="free">Free</option><option value="plus">Plus</option><option value="pro">Pro</option></select>
+              <select id="adminRoleFilter"><option value="">Все роли</option><option value="user">User</option><option value="admin">Admin</option></select>
+              <select id="adminStatusFilter"><option value="">Любой статус</option><option value="active">active</option><option value="blocked">blocked</option></select>
+            </div>
+            <div class="table-wrap"><table class="admin-table"><tbody id="adminUsersBody"></tbody></table></div>
+            <select id="adminPaymentStatusFilter"><option value="">Все статусы</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
+            <div class="table-wrap"><table class="admin-table"><tbody id="adminPaymentsBody"></tbody></table></div>
+            <select id="adminLeadStatusFilter"><option value="">Все статусы</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
+            <div class="table-wrap"><table class="admin-table"><tbody id="adminLeadsBody"></tbody></table></div>
             <p id="adminMessage" class="message" aria-live="polite"></p>
           </article>
         </section>
@@ -397,7 +313,7 @@
     </div>
 
     <template id="historyItemTemplate">
-      <article class="history-item glass-lite">
+      <article class="history-item">
         <header>
           <span class="chip"></span>
           <time></time>
@@ -405,8 +321,8 @@
         <p class="history-prompt"></p>
         <p class="history-output"></p>
         <div class="history-actions">
-          <button class="ghost-btn copy-btn" type="button">Копировать</button>
-          <button class="ghost-btn danger delete-btn" type="button">Удалить</button>
+          <button class="mini-btn copy-btn" type="button">Копировать</button>
+          <button class="mini-btn danger delete-btn" type="button">Удалить</button>
         </div>
       </article>
     </template>

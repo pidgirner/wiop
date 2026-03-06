@@ -104,6 +104,7 @@ const elements = {
   usageFill: document.getElementById("usageFill"),
   installAppBtn: document.getElementById("installAppBtn"),
   menuToggleBtn: document.getElementById("menuToggleBtn"),
+  avatarMenuBtn: document.getElementById("avatarMenuBtn"),
   menuCloseBtn: document.getElementById("menuCloseBtn"),
   menuBackdrop: document.getElementById("menuBackdrop"),
   sideMenu: document.getElementById("sideMenu"),
@@ -116,6 +117,10 @@ const elements = {
   adminTabBtn: document.getElementById("adminTabBtn"),
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
+  quickActionCards: Array.from(document.querySelectorAll("[data-quick-type]")),
+  modeChatBtn: document.getElementById("modeChatBtn"),
+  modeVoiceBtn: document.getElementById("modeVoiceBtn"),
+  selectedTypeBadge: document.getElementById("selectedTypeBadge"),
   generatorForm: document.getElementById("generatorForm"),
   generateSubmitBtn: document.querySelector("#generatorForm button[type='submit']"),
   promptInput: document.getElementById("promptInput"),
@@ -202,6 +207,9 @@ function bindEvents() {
   if (elements.menuToggleBtn) {
     elements.menuToggleBtn.addEventListener("click", toggleMenu);
   }
+  if (elements.avatarMenuBtn) {
+    elements.avatarMenuBtn.addEventListener("click", toggleMenu);
+  }
   if (elements.menuCloseBtn) {
     elements.menuCloseBtn.addEventListener("click", closeMenu);
   }
@@ -216,23 +224,26 @@ function bindEvents() {
 
   elements.typeButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const type = button.dataset.type;
-      if (!isTypeAllowed(type)) {
-        const plan = getCurrentPlan();
-        setMessage(
-          elements.generatorMessage,
-          `Тип \"${CONTENT_TYPES[type]}\" недоступен на тарифе ${plan.label}.`,
-          "error"
-        );
-        return;
-      }
-
-      state.selectedType = type;
-      saveState();
-      renderTypeButtons();
-      clearMessage(elements.generatorMessage);
+      setSelectedType(button.dataset.type);
     });
   });
+
+  elements.quickActionCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      setSelectedType(card.dataset.quickType);
+    });
+  });
+
+  if (elements.modeChatBtn) {
+    elements.modeChatBtn.addEventListener("click", () => {
+      setSelectedType("text");
+    });
+  }
+  if (elements.modeVoiceBtn) {
+    elements.modeVoiceBtn.addEventListener("click", () => {
+      setSelectedType("audio");
+    });
+  }
 
   elements.generatorForm.addEventListener("submit", onGenerate);
 
@@ -367,6 +378,27 @@ function bindEvents() {
       void saveAdminLeadRow(leadId);
     });
   }
+}
+
+function setSelectedType(type) {
+  if (!CONTENT_TYPES[type]) {
+    return;
+  }
+
+  if (!isTypeAllowed(type)) {
+    const plan = getCurrentPlan();
+    setMessage(
+      elements.generatorMessage,
+      `Тип \"${CONTENT_TYPES[type]}\" недоступен на тарифе ${plan.label}.`,
+      "error"
+    );
+    return;
+  }
+
+  state.selectedType = type;
+  saveState();
+  renderTypeButtons();
+  clearMessage(elements.generatorMessage);
 }
 
 async function bootstrap() {
@@ -1114,6 +1146,32 @@ function renderTypeButtons() {
     button.style.opacity = allowed ? "1" : "0.45";
     button.title = allowed ? "" : `Недоступно на тарифе ${plan.label}.`;
   });
+
+  elements.quickActionCards.forEach((card) => {
+    const type = card.dataset.quickType;
+    const allowed = plan.allowedTypes.includes(type);
+    card.classList.toggle("active", type === selected);
+    card.disabled = !allowed;
+    card.style.opacity = allowed ? "1" : "0.45";
+    card.title = allowed ? "" : `Недоступно на тарифе ${plan.label}.`;
+  });
+
+  if (elements.modeChatBtn && elements.modeVoiceBtn) {
+    const isVoice = selected === "audio";
+    elements.modeVoiceBtn.classList.toggle("active", isVoice);
+    elements.modeChatBtn.classList.toggle("active", !isVoice);
+  }
+
+  if (elements.selectedTypeBadge) {
+    const badgeMap = {
+      text: "Text",
+      image: "Image",
+      video: "Video",
+      audio: "Voice",
+      post: "Post"
+    };
+    elements.selectedTypeBadge.textContent = badgeMap[selected] || "Text";
+  }
 }
 
 function renderLatestOutput() {
@@ -1745,7 +1803,9 @@ function setGenerateButtonState(loading) {
   }
 
   elements.generateSubmitBtn.disabled = loading;
-  elements.generateSubmitBtn.textContent = loading ? "Генерируем..." : "Сгенерировать";
+  elements.generateSubmitBtn.classList.toggle("loading", Boolean(loading));
+  elements.generateSubmitBtn.setAttribute("aria-label", loading ? "Генерируем..." : "Сгенерировать");
+  elements.generateSubmitBtn.title = loading ? "Генерируем..." : "Сгенерировать";
 }
 
 function redirectToAuthGate() {
