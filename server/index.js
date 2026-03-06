@@ -20,8 +20,15 @@ const GOOGLE_SITE_VERIFICATION = String(process.env.GOOGLE_SITE_VERIFICATION || 
 const YANDEX_VERIFICATION = String(process.env.YANDEX_VERIFICATION || "").trim();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-const SUPABASE_STATE_TABLE = String(process.env.SUPABASE_STATE_TABLE || "app_state").trim();
-const SUPABASE_STATE_KEY = String(process.env.SUPABASE_STATE_KEY || "main").trim();
+const OPENAI_API_BASE = String(process.env.OPENAI_API_BASE || "https://api.openai.com/v1").replace(/\/+$/, "");
+const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || "").trim();
+const OPENAI_MODEL = String(process.env.OPENAI_MODEL || "gpt-4o-mini").trim();
+const OPENAI_TEMPERATURE = Number.isFinite(Number(process.env.OPENAI_TEMPERATURE))
+  ? Math.max(0, Math.min(1.5, Number(process.env.OPENAI_TEMPERATURE)))
+  : 0.7;
+const OPENAI_MAX_TOKENS = Number.isFinite(Number(process.env.OPENAI_MAX_TOKENS))
+  ? Math.max(128, Math.min(4096, Number.parseInt(process.env.OPENAI_MAX_TOKENS, 10)))
+  : 900;
 
 const CARDLINK_API_BASE = (process.env.CARDLINK_API_BASE || "https://cardlink.link").replace(/\/+$/, "");
 const CARDLINK_API_TOKEN = process.env.CARDLINK_API_TOKEN || "";
@@ -61,7 +68,20 @@ const PAYMENT_SUCCESS_STATUSES = new Set(["SUCCESS", "OVERPAID"]);
 const PAYMENT_FAILURE_STATUSES = new Set(["FAIL"]);
 const USER_STATUSES = new Set(["active", "blocked"]);
 const USER_ROLES = new Set(["user", "admin"]);
-const LEAD_STATUSES = new Set(["new", "contacted", "qualified", "converted", "archived"]);
+const LEAD_STATUSES = new Set(["new", "contacted", "qualified", "converted", "archived", "lost"]);
+const SUBSCRIPTION_STATUSES = new Set(["inactive", "trialing", "active", "past_due", "canceled", "expired", "payment_failed"]);
+const DB_PAYMENT_STATUSES = new Set(["new", "process", "success", "overpaid", "underpaid", "fail", "refunded", "chargeback"]);
+const GENERATION_TYPES = new Set(["text", "image", "video", "audio", "post"]);
+
+const REQUIRED_SUPABASE_TABLES = [
+  { table: "plans", probe: "id" },
+  { table: "app_users", probe: "id" },
+  { table: "user_profiles", probe: "user_id" },
+  { table: "user_subscriptions", probe: "id" },
+  { table: "payments", probe: "id" },
+  { table: "leads", probe: "id" },
+  { table: "generations", probe: "id" }
+];
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
@@ -364,6 +384,124 @@ app.patch("/api/profile", requireAuth, async (req, res) => {
 
     console.error("[profile-update]", error);
     return res.status(500).json({ error: "Не удалось обновить профиль." });
+  }
+});
+
+app.get("/api/generations", requireAuth, async (req, res) => {
+  const typeRaw = req.query.type == null ? "" : String(req.query.type);
+  const type = typeRaw ? normalizeGenerationType(typeRaw) : null;
+  if (typeRaw && !type) {
+    return res.status(400).json({ error: "Некорректный тип контента." });
+  }
+
+  const limit = clampInt(req.query.limit, 120, 1, 500);
+
+  try {
+    const data = await listUserGenerations(req.user.id, {
+      limit,
+      type
+    });
+    return res.json({ data });
+  } catch (error) {
+    console.error("[generations-list]", error);
+    return res.status(500).json({ error: "Не удалось загрузить историю генераций." });
+  }
+});
+
+app.post("/api/generations", requireAuth, async (req, res) => {
+  const type = normalizeGenerationType(req.body.type || req.body.contentType || req.body.kind);
+  const prompt = String(req.body.prompt || "").trim();
+  const tone = String(req.body.tone || "").trim();
+  const platform = String(req.body.platform || "").trim();
+
+  if (!type) {
+    return res.status(400).json({ error: "Выберите корректный тип контента." });
+  }
+
+  if (prompt.length < 3) {
+    return res.status(400).json({ error: "Промпт должен быть не короче 3 символов." });
+  }
+
+  if (prompt.length > 4000) {
+    return res.status(400).json({ error: "Промпт слишком длинный (максимум 4000 символов)." });
+  }
+
+  if (!isAiGeneratorReady()) {
+    return res.status(503).json({ error: "AI генератор не настроен на сервере. Добавьте OPENAI_API_KEY." });
+  }
+
+  const planId = normalizePlanId(req.user.planId) || "free";
+  if (!PLAN_CONFIG[planId].allowedTypes.includes(type)) {
+    return res.status(403).json({
+      error: `Формат ${toContentTypeLabel(type)} недоступен на тарифе ${PLAN_CONFIG[planId].label}.`
+    });
+  }
+
+  try {
+    const monthlyUsage = await getMonthlyGenerationUsage(req.user.id);
+    const planLimit = planGenerationLimit(planId);
+    if (planLimit !== null && monthlyUsage >= planLimit) {
+      return res.status(403).json({
+        error: `Лимит ${planLimit} генераций в текущем месяце для тарифа ${PLAN_CONFIG[planId].label} достигнут.`
+      });
+    }
+
+    const generated = await generateWithAi({
+      type,
+      prompt,
+      tone,
+      platform
+    });
+
+    const item = await createGenerationRecord({
+      userId: req.user.id,
+      planId,
+      type,
+      prompt,
+      tone,
+      platform,
+      title: generated.title,
+      output: generated.output,
+      model: generated.model || OPENAI_MODEL,
+      metadata: generated.metadata
+    });
+
+    return res.status(201).json({ item });
+  } catch (error) {
+    const status = Number(error?.status) || 500;
+    const message = String(error?.message || "Не удалось выполнить генерацию.");
+    if (status >= 500) {
+      console.error("[generation-create]", error);
+    }
+    return res.status(status).json({ error: message });
+  }
+});
+
+app.delete("/api/generations", requireAuth, async (req, res) => {
+  try {
+    const removed = await clearUserGenerations(req.user.id);
+    return res.json({ ok: true, removed });
+  } catch (error) {
+    console.error("[generation-clear]", error);
+    return res.status(500).json({ error: "Не удалось очистить историю генераций." });
+  }
+});
+
+app.delete("/api/generations/:id", requireAuth, async (req, res) => {
+  const generationId = String(req.params.id || "").trim();
+  if (!generationId) {
+    return res.status(400).json({ error: "Некорректный id генерации." });
+  }
+
+  try {
+    const removed = await removeUserGeneration(req.user.id, generationId);
+    if (!removed) {
+      return res.status(404).json({ error: "Генерация не найдена." });
+    }
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error("[generation-delete]", error);
+    return res.status(500).json({ error: "Не удалось удалить генерацию." });
   }
 });
 
@@ -1062,6 +1200,23 @@ function sanitizeLead(lead) {
   };
 }
 
+function sanitizeGeneration(row) {
+  const type = normalizeGenerationType(row.type || row.contentType) || "text";
+  return {
+    id: row.id,
+    userId: row.userId,
+    type,
+    prompt: row.prompt || "",
+    title: row.title || defaultGenerationTitle(type, row.platform || ""),
+    output: row.output || "",
+    tone: row.tone || "",
+    platform: row.platform || "",
+    model: row.model || "",
+    status: row.status || "completed",
+    createdAt: row.createdAt || new Date().toISOString()
+  };
+}
+
 function buildAdminOverview(db) {
   const users = db.users;
   const payments = db.payments;
@@ -1214,6 +1369,451 @@ async function patchUserById(userId, patcher) {
   });
 }
 
+async function listUserGenerations(userId, options = {}) {
+  const limit = clampInt(options.limit, 120, 1, 500);
+  const type = options.type ? normalizeGenerationType(options.type) : null;
+
+  if (isSupabaseReady()) {
+    let query = supabase
+      .from("generations")
+      .select("id,user_id,content_type,prompt,tone,platform,title,output,model,status,error_text,created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (type) {
+      query = query.eq("content_type", type);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      throw new Error(`[supabase-generations-list] ${error.message}`);
+    }
+
+    return Array.isArray(data) ? data.map(mapSupabaseGenerationRow).map(sanitizeGeneration) : [];
+  }
+
+  const db = await readDb();
+  let rows = db.generations.filter((entry) => entry.userId === userId);
+
+  if (type) {
+    rows = rows.filter((entry) => entry.type === type);
+  }
+
+  rows.sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
+  return rows.slice(0, limit).map(sanitizeGeneration);
+}
+
+async function getMonthlyGenerationUsage(userId) {
+  const startIso = startOfCurrentMonthUtcIso();
+  if (isSupabaseReady()) {
+    const { count, error } = await supabase
+      .from("generations")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", startIso);
+
+    if (error) {
+      throw new Error(`[supabase-generations-usage] ${error.message}`);
+    }
+
+    return Number(count || 0);
+  }
+
+  const startTs = toTimestamp(startIso);
+  const db = await readDb();
+  return db.generations.filter((entry) => entry.userId === userId && toTimestamp(entry.createdAt) >= startTs).length;
+}
+
+async function createGenerationRecord(payload) {
+  const now = new Date().toISOString();
+  const safe = {
+    id: makeId(),
+    userId: payload.userId,
+    type: normalizeGenerationType(payload.type) || "text",
+    prompt: clampText(payload.prompt || "", 4000),
+    tone: clampText(payload.tone || "", 80),
+    platform: clampText(payload.platform || "", 80),
+    title: clampText(payload.title || "", 200),
+    output: clampText(payload.output || "", 12000),
+    model: clampText(payload.model || OPENAI_MODEL, 120),
+    status: "completed",
+    errorText: null,
+    metadata: payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {},
+    createdAt: now
+  };
+
+  if (isSupabaseReady()) {
+    const row = {
+      id: safe.id,
+      user_id: safe.userId,
+      content_type: safe.type,
+      prompt: safe.prompt,
+      tone: toNullIfEmpty(safe.tone),
+      platform: toNullIfEmpty(safe.platform),
+      title: toNullIfEmpty(safe.title),
+      output: safe.output,
+      model: toNullIfEmpty(safe.model),
+      status: "completed",
+      error_text: null,
+      metadata: {
+        ...(safe.metadata || {}),
+        provider: "openai",
+        plan_id: payload.planId || null
+      },
+      created_at: safe.createdAt
+    };
+
+    const { data, error } = await supabase
+      .from("generations")
+      .insert(row)
+      .select("id,user_id,content_type,prompt,tone,platform,title,output,model,status,error_text,created_at")
+      .single();
+
+    if (error) {
+      throw new Error(`[supabase-generation-insert] ${error.message}`);
+    }
+
+    return sanitizeGeneration(mapSupabaseGenerationRow(data));
+  }
+
+  return mutateDb((db) => {
+    db.generations.unshift(safe);
+    return sanitizeGeneration(safe);
+  });
+}
+
+async function clearUserGenerations(userId) {
+  if (isSupabaseReady()) {
+    const { count, error: countError } = await supabase
+      .from("generations")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId);
+
+    if (countError) {
+      throw new Error(`[supabase-generation-clear-count] ${countError.message}`);
+    }
+
+    const removed = Number(count || 0);
+    if (removed > 0) {
+      const { error } = await supabase
+        .from("generations")
+        .delete()
+        .eq("user_id", userId);
+      if (error) {
+        throw new Error(`[supabase-generation-clear] ${error.message}`);
+      }
+    }
+
+    return removed;
+  }
+
+  return mutateDb((db) => {
+    const before = db.generations.length;
+    db.generations = db.generations.filter((entry) => entry.userId !== userId);
+    return before - db.generations.length;
+  });
+}
+
+async function removeUserGeneration(userId, generationId) {
+  if (isSupabaseReady()) {
+    const { data, error } = await supabase
+      .from("generations")
+      .delete()
+      .eq("id", generationId)
+      .eq("user_id", userId)
+      .select("id");
+
+    if (error) {
+      throw new Error(`[supabase-generation-delete] ${error.message}`);
+    }
+
+    return Array.isArray(data) && data.length > 0;
+  }
+
+  return mutateDb((db) => {
+    const idx = db.generations.findIndex((entry) => entry.id === generationId && entry.userId === userId);
+    if (idx < 0) {
+      return false;
+    }
+    db.generations.splice(idx, 1);
+    return true;
+  });
+}
+
+async function generateWithAi({ type, prompt, tone, platform }) {
+  if (!isAiGeneratorReady()) {
+    throw createHttpError(503, "AI генератор не настроен. Добавьте OPENAI_API_KEY.");
+  }
+
+  const system = buildGenerationSystemPrompt();
+  const userPrompt = buildGenerationUserPrompt({
+    type,
+    prompt,
+    tone,
+    platform
+  });
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60000);
+
+  let response;
+  try {
+    response = await fetch(`${OPENAI_API_BASE}/chat/completions`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        temperature: OPENAI_TEMPERATURE,
+        max_tokens: OPENAI_MAX_TOKENS,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: userPrompt }
+        ]
+      })
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw createHttpError(504, "AI генерация заняла слишком много времени. Повторите запрос.");
+    }
+    throw createHttpError(502, "Не удалось подключиться к AI провайдеру.");
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  const rawText = await response.text();
+  let payload = null;
+  try {
+    payload = rawText ? JSON.parse(rawText) : null;
+  } catch (_error) {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw createHttpError(mapProviderStatusToHttp(response.status), parseOpenAiError(payload, response.status));
+  }
+
+  const outputText = extractTextFromOpenAi(payload);
+  if (!outputText) {
+    throw createHttpError(502, "AI провайдер вернул пустой ответ.");
+  }
+
+  const parsed = parseAiGenerationOutput(outputText, type, platform);
+  return {
+    ...parsed,
+    model: clampText(String(payload?.model || OPENAI_MODEL), 120),
+    metadata: {
+      provider: "openai",
+      temperature: OPENAI_TEMPERATURE
+    }
+  };
+}
+
+function mapSupabaseGenerationRow(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    type: row.content_type,
+    prompt: row.prompt,
+    tone: row.tone || "",
+    platform: row.platform || "",
+    title: row.title || "",
+    output: row.output || "",
+    model: row.model || "",
+    status: row.status || "completed",
+    errorText: row.error_text || null,
+    createdAt: row.created_at || new Date().toISOString()
+  };
+}
+
+function parseAiGenerationOutput(rawText, type, platform) {
+  const normalized = String(rawText || "").replace(/\r\n/g, "\n").trim();
+  const fallbackTitle = defaultGenerationTitle(type, platform);
+  if (!normalized) {
+    return {
+      title: fallbackTitle,
+      output: "Контент не сгенерирован. Попробуйте уточнить промпт."
+    };
+  }
+
+  const titleMatch = normalized.match(/^\s*TITLE:\s*(.+)$/im);
+  const contentMatch = normalized.match(/^\s*CONTENT:\s*([\s\S]+)$/im);
+
+  let title = titleMatch ? titleMatch[1].trim() : "";
+  let output = contentMatch ? contentMatch[1].trim() : normalized;
+
+  if (!title) {
+    const firstLine = output.split("\n").find((line) => line.trim());
+    if (firstLine && firstLine.length <= 140) {
+      title = firstLine.trim();
+      output = output
+        .split("\n")
+        .slice(1)
+        .join("\n")
+        .trim() || output;
+    }
+  }
+
+  return {
+    title: clampText(title || fallbackTitle, 200),
+    output: clampText(output || normalized, 12000)
+  };
+}
+
+function buildGenerationSystemPrompt() {
+  return [
+    "Ты senior content strategist и копирайтер.",
+    "Отвечай только на русском языке.",
+    "Верни ответ строго в формате:",
+    "TITLE: <краткий заголовок до 90 символов>",
+    "CONTENT:",
+    "<готовый контент без вводных фраз и без объяснений про модель>"
+  ].join("\n");
+}
+
+function buildGenerationUserPrompt({ type, prompt, tone, platform }) {
+  const safePrompt = clampText(String(prompt || "").trim(), 4000);
+  const safeTone = clampText(String(tone || "нейтральный").trim(), 80);
+  const safePlatform = clampText(String(platform || "универсально").trim(), 80);
+
+  return [
+    `Формат: ${toContentTypeLabel(type)}.`,
+    `Платформа: ${safePlatform}.`,
+    `Тон: ${safeTone}.`,
+    "",
+    "Требования к результату:",
+    generationTypeGuideline(type),
+    "",
+    "Запрос пользователя:",
+    safePrompt
+  ].join("\n");
+}
+
+function generationTypeGuideline(type) {
+  if (type === "image") {
+    return "Сформируй детальный промпт для генерации изображения: сцена, свет, композиция, стиль, тех-параметры.";
+  }
+  if (type === "video") {
+    return "Сформируй короткий видеосценарий с таймингом, хуком в начале, основной частью и CTA в конце.";
+  }
+  if (type === "audio") {
+    return "Сформируй аудио-скрипт: структура, интонация, темп, финальный CTA, рекомендации по подложке.";
+  }
+  if (type === "post") {
+    return "Сформируй полностью готовый пост для публикации с логичной структурой, CTA и релевантными хештегами.";
+  }
+  return "Сформируй структурированный, прикладной текст: сильный хук, ценность, шаги и четкий CTA.";
+}
+
+function normalizeGenerationType(value) {
+  const type = String(value || "").trim().toLowerCase();
+  return GENERATION_TYPES.has(type) ? type : null;
+}
+
+function defaultGenerationTitle(type, platform) {
+  const map = {
+    text: "Текст",
+    image: "Концепт фото",
+    video: "Сценарий видео",
+    audio: "Аудио-скрипт",
+    post: "Готовый пост"
+  };
+  const base = map[type] || "Генерация";
+  return platform ? `${base} для ${platform}` : base;
+}
+
+function toContentTypeLabel(type) {
+  const map = {
+    text: "Текст",
+    image: "Фото",
+    video: "Видео",
+    audio: "Аудио",
+    post: "Готовый пост"
+  };
+  return map[type] || "Контент";
+}
+
+function extractTextFromOpenAi(payload) {
+  const direct = payload?.choices?.[0]?.message?.content;
+  if (typeof direct === "string") {
+    return direct.trim();
+  }
+
+  if (Array.isArray(direct)) {
+    const merged = direct
+      .map((part) => {
+        if (typeof part === "string") {
+          return part;
+        }
+        if (typeof part?.text === "string") {
+          return part.text;
+        }
+        return "";
+      })
+      .join("\n")
+      .trim();
+    if (merged) {
+      return merged;
+    }
+  }
+
+  if (typeof payload?.output_text === "string") {
+    return payload.output_text.trim();
+  }
+
+  return "";
+}
+
+function parseOpenAiError(payload, status) {
+  const detail = String(payload?.error?.message || "").trim();
+  if (status === 401 || status === 403) {
+    return "OPENAI_API_KEY недействителен или не имеет доступа к модели.";
+  }
+  if (status === 429) {
+    return "Лимит запросов к AI провайдеру достигнут. Повторите попытку позже.";
+  }
+  if (status >= 500) {
+    return "AI провайдер временно недоступен.";
+  }
+  if (detail) {
+    return `AI запрос отклонен: ${detail}`;
+  }
+  return "Не удалось получить ответ от AI провайдера.";
+}
+
+function mapProviderStatusToHttp(providerStatus) {
+  if (providerStatus === 400) {
+    return 400;
+  }
+  if (providerStatus === 401 || providerStatus === 403) {
+    return 503;
+  }
+  if (providerStatus === 429) {
+    return 429;
+  }
+  return 502;
+}
+
+function startOfCurrentMonthUtcIso() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  return start.toISOString();
+}
+
+function isAiGeneratorReady() {
+  return Boolean(OPENAI_API_KEY && OPENAI_MODEL);
+}
+
+function createHttpError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
 async function ensureRuntimeReady() {
   if (runtimeReadyPromise) {
     return runtimeReadyPromise;
@@ -1232,7 +1832,7 @@ async function ensureRuntimeReady() {
 
 async function ensureDb() {
   if (isSupabaseReady()) {
-    await ensureSupabaseStateRow();
+    await ensureSupabaseSchemaAndSeed();
     return;
   }
 
@@ -1248,32 +1848,11 @@ async function ensureLocalDb() {
   }
 }
 
-async function ensureSupabaseStateRow() {
-  const payload = createDefaultDb();
-  const { error } = await supabase
-    .from(SUPABASE_STATE_TABLE)
-    .upsert(
-      {
-        id: SUPABASE_STATE_KEY,
-        payload,
-        updated_at: new Date().toISOString()
-      },
-      {
-        onConflict: "id",
-        ignoreDuplicates: true
-      }
-    );
-
-  if (error) {
-    throw new Error(`[supabase-ensure] ${error.message}`);
-  }
-}
-
 async function readDb() {
   await ensureDb();
 
   if (isSupabaseReady()) {
-    return readSupabaseDb();
+    return readSupabaseNormalizedDb();
   }
 
   const raw = await fs.readFile(DB_PATH, "utf8");
@@ -1285,51 +1864,179 @@ async function readDb() {
   }
 }
 
-async function readSupabaseDb() {
-  const { data, error } = await supabase
-    .from(SUPABASE_STATE_TABLE)
-    .select("payload")
-    .eq("id", SUPABASE_STATE_KEY)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`[supabase-read] ${error.message}`);
-  }
-
-  if (!data || typeof data.payload !== "object" || data.payload === null) {
-    return createDefaultDb();
-  }
-
-  return normalizeDb(data.payload);
-}
-
 async function writeDb(db) {
   if (isSupabaseReady()) {
-    await writeSupabaseDb(db);
+    await writeSupabaseNormalizedDb(db);
     return;
   }
 
   await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
 }
 
-async function writeSupabaseDb(db) {
-  const payload = normalizeDb(db);
-  const { error } = await supabase
-    .from(SUPABASE_STATE_TABLE)
-    .upsert(
-      {
-        id: SUPABASE_STATE_KEY,
-        payload,
-        updated_at: new Date().toISOString()
-      },
-      {
-        onConflict: "id"
-      }
-    );
-
-  if (error) {
-    throw new Error(`[supabase-write] ${error.message}`);
+async function ensureSupabaseSchemaAndSeed() {
+  for (const item of REQUIRED_SUPABASE_TABLES) {
+    const { error } = await supabase.from(item.table).select(item.probe).limit(1);
+    if (error) {
+      throw new Error(
+        `[supabase-schema] table "${item.table}" is not ready: ${error.message}. Run supabase/schema.sql first.`
+      );
+    }
   }
+
+  const planRows = Object.values(PLAN_CONFIG).map((plan, index) => {
+    const limit = planGenerationLimit(plan.id);
+    return {
+      id: plan.id,
+      name: plan.label,
+      description: plan.label,
+      price_monthly: Number(plan.amount || 0),
+      currency: String(plan.currency || CARDLINK_CURRENCY).toUpperCase(),
+      generations_per_month: limit,
+      allowed_content_types: plan.allowedTypes,
+      is_active: true,
+      sort_order: index + 1,
+      metadata: {
+        checkout_available: plan.id !== "free"
+      }
+    };
+  });
+
+  const { error: seedError } = await supabase
+    .from("plans")
+    .upsert(planRows, { onConflict: "id" });
+
+  if (seedError) {
+    throw new Error(`[supabase-seed-plans] ${seedError.message}`);
+  }
+}
+
+async function readSupabaseNormalizedDb() {
+  const db = createDefaultDb();
+
+  const usersRows = await fetchSupabaseRows(() =>
+    supabase
+      .from("app_users")
+      .select("id,email,password_hash,role,status,created_at,updated_at,last_login_at,last_payment_at")
+      .order("created_at", { ascending: false })
+  );
+
+  const userIds = usersRows.map((row) => row.id).filter(Boolean);
+
+  const profileRows = userIds.length
+    ? await fetchSupabaseRows(() =>
+      supabase
+        .from("user_profiles")
+        .select("user_id,full_name,username,website,bio")
+        .in("user_id", userIds)
+    )
+    : [];
+
+  const subscriptionRows = userIds.length
+    ? await fetchSupabaseRows(() =>
+      supabase
+        .from("user_subscriptions")
+        .select("id,user_id,plan_id,status,is_current,created_at,updated_at,current_period_start,current_period_end")
+        .in("user_id", userIds)
+        .eq("is_current", true)
+    )
+    : [];
+
+  const profileMap = new Map(profileRows.map((row) => [row.user_id, row]));
+  const subscriptionMap = new Map(subscriptionRows.map((row) => [row.user_id, row]));
+
+  db.users = usersRows.map((row) => {
+    const profile = profileMap.get(row.id);
+    const subscription = subscriptionMap.get(row.id);
+    const planId = normalizePlanId(subscription?.plan_id) || "free";
+    const planStatus = subscriptionStatusToPlanStatus(subscription?.status, planId);
+
+    return {
+      id: row.id,
+      email: String(row.email || "").toLowerCase(),
+      passwordHash: row.password_hash || "",
+      role: USER_ROLES.has(String(row.role || "")) ? String(row.role) : "user",
+      status: USER_STATUSES.has(String(row.status || "")) ? String(row.status) : "active",
+      planId,
+      planStatus,
+      profile: {
+        fullName: profile?.full_name || "",
+        username: profile?.username || "",
+        website: profile?.website || "",
+        bio: profile?.bio || ""
+      },
+      createdAt: row.created_at || new Date().toISOString(),
+      updatedAt: row.updated_at || row.created_at || new Date().toISOString(),
+      lastLoginAt: row.last_login_at || null,
+      lastPaymentAt: row.last_payment_at || null
+    };
+  });
+
+  const paymentRows = await fetchSupabaseRows(() =>
+    supabase
+      .from("payments")
+      .select(
+        "id,user_id,plan_id,provider,provider_bill_id,provider_order_id,provider_transaction_id,amount,currency,commission,status,source,raw_payload,created_at,updated_at,paid_at,failed_at"
+      )
+      .order("created_at", { ascending: false })
+  );
+
+  db.payments = paymentRows.map((row) => {
+    const raw = row.raw_payload && typeof row.raw_payload === "object" ? row.raw_payload : null;
+    const appMeta = raw?._app && typeof raw._app === "object" ? raw._app : null;
+    return {
+      id: row.id,
+      provider: String(row.provider || "cardlink"),
+      billId: row.provider_bill_id || null,
+      orderId: row.provider_order_id || "",
+      userId: row.user_id || null,
+      planId: normalizePlanId(row.plan_id) || "free",
+      amount: toNumberOrNull(row.amount),
+      outSum: toNumberOrNull(appMeta?.outSum),
+      commission: toNumberOrNull(row.commission),
+      currency: String(row.currency || CARDLINK_CURRENCY).toUpperCase(),
+      status: dbPaymentStatusToApp(row.status),
+      trsId: row.provider_transaction_id || null,
+      custom: typeof appMeta?.custom === "string" ? appMeta.custom : null,
+      linkUrl: typeof appMeta?.linkUrl === "string" ? appMeta.linkUrl : null,
+      linkPageUrl: typeof appMeta?.linkPageUrl === "string" ? appMeta.linkPageUrl : null,
+      source: row.source || "unknown",
+      raw: raw,
+      createdAt: row.created_at || new Date().toISOString(),
+      updatedAt: row.updated_at || row.created_at || new Date().toISOString(),
+      paidAt: row.paid_at || null,
+      failedAt: row.failed_at || null
+    };
+  });
+
+  const leadRows = await fetchSupabaseRows(() =>
+    supabase
+      .from("leads")
+      .select("id,name,email,phone,company,goal,source,status,note,created_at,updated_at")
+      .order("created_at", { ascending: false })
+  );
+
+  db.leads = leadRows.map((row) => ({
+    id: row.id,
+    name: row.name || "",
+    email: String(row.email || "").toLowerCase(),
+    phone: row.phone || "",
+    company: row.company || "",
+    goal: row.goal || "",
+    source: row.source || "landing",
+    status: dbLeadStatusToApp(row.status),
+    note: row.note || "",
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || row.created_at || new Date().toISOString()
+  }));
+
+  return normalizeDb(db);
+}
+
+async function writeSupabaseNormalizedDb(db) {
+  const normalized = normalizeDb(db);
+  await syncSupabaseUsers(normalized.users);
+  await syncSupabasePayments(normalized.payments);
+  await syncSupabaseLeads(normalized.leads);
 }
 
 function mutateDb(mutator) {
@@ -1348,7 +2055,8 @@ function normalizeDb(db) {
   const safe = {
     users: Array.isArray(db?.users) ? db.users : [],
     payments: Array.isArray(db?.payments) ? db.payments : [],
-    leads: Array.isArray(db?.leads) ? db.leads : []
+    leads: Array.isArray(db?.leads) ? db.leads : [],
+    generations: Array.isArray(db?.generations) ? db.generations : []
   };
 
   safe.users = safe.users.map((user) => {
@@ -1419,6 +2127,28 @@ function normalizeDb(db) {
     };
   });
 
+  safe.generations = safe.generations.map((entry) => {
+    const now = new Date().toISOString();
+    const type = normalizeGenerationType(entry.type || entry.contentType) || "text";
+    return {
+      id: entry.id || makeId(),
+      userId: entry.userId || "",
+      type,
+      prompt: clampText(String(entry.prompt || "").trim(), 4000),
+      tone: clampText(String(entry.tone || "").trim(), 80),
+      platform: clampText(String(entry.platform || "").trim(), 80),
+      title: clampText(String(entry.title || defaultGenerationTitle(type, entry.platform || "")).trim(), 200),
+      output: clampText(String(entry.output || "").trim(), 12000),
+      model: clampText(String(entry.model || "").trim(), 120),
+      status: "completed",
+      errorText: null,
+      metadata: entry.metadata && typeof entry.metadata === "object" ? entry.metadata : {},
+      createdAt: entry.createdAt || now
+    };
+  });
+
+  safe.generations.sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
+
   return safe;
 }
 
@@ -1426,8 +2156,182 @@ function createDefaultDb() {
   return {
     users: [],
     payments: [],
-    leads: []
+    leads: [],
+    generations: []
   };
+}
+
+async function fetchSupabaseRows(builderFactory, pageSize = 1000) {
+  const rows = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await builderFactory().range(from, from + pageSize - 1);
+    if (error) {
+      throw new Error(`[supabase-select] ${error.message}`);
+    }
+
+    if (!Array.isArray(data) || !data.length) {
+      break;
+    }
+
+    rows.push(...data);
+    if (data.length < pageSize) {
+      break;
+    }
+
+    from += pageSize;
+  }
+
+  return rows;
+}
+
+async function syncSupabaseUsers(users) {
+  if (!users.length) {
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const userRows = users.map((user) => ({
+    id: user.id,
+    email: user.email,
+    password_hash: user.passwordHash || "",
+    role: mapUserRoleToDb(user.role),
+    status: mapUserStatusToDb(user.status),
+    created_at: user.createdAt || now,
+    updated_at: user.updatedAt || now,
+    last_login_at: user.lastLoginAt || null,
+    last_payment_at: user.lastPaymentAt || null
+  }));
+
+  const { error: usersError } = await supabase
+    .from("app_users")
+    .upsert(userRows, { onConflict: "id" });
+  if (usersError) {
+    throw new Error(`[supabase-sync-users] ${usersError.message}`);
+  }
+
+  const profileRows = users.map((user) => ({
+    user_id: user.id,
+    full_name: clampText(user.profile?.fullName || "", 200),
+    username: toNullIfEmpty(clampText(user.profile?.username || "", 120)),
+    website: clampText(user.profile?.website || "", 300),
+    bio: clampText(user.profile?.bio || "", 2000),
+    updated_at: user.updatedAt || now
+  }));
+
+  const { error: profilesError } = await supabase
+    .from("user_profiles")
+    .upsert(profileRows, { onConflict: "user_id" });
+  if (profilesError) {
+    throw new Error(`[supabase-sync-profiles] ${profilesError.message}`);
+  }
+
+  const userIds = users.map((user) => user.id);
+  const existingSubscriptions = await fetchSupabaseRows(() =>
+    supabase
+      .from("user_subscriptions")
+      .select("id,user_id,current_period_start,current_period_end,created_at")
+      .eq("is_current", true)
+      .in("user_id", userIds)
+  );
+  const existingMap = new Map(existingSubscriptions.map((row) => [row.user_id, row]));
+
+  const updateRows = users.map((user) => {
+    const existing = existingMap.get(user.id);
+    const planId = normalizePlanId(user.planId) || "free";
+    const status = planStatusToSubscriptionStatus(user.planStatus, planId);
+    const active = status === "active" || status === "trialing";
+
+    return {
+      id: existing?.id || makeId(),
+      user_id: user.id,
+      plan_id: planId,
+      status,
+      is_current: true,
+      current_period_start: existing?.current_period_start || (active ? now : null),
+      current_period_end: existing?.current_period_end || null,
+      created_at: existing?.created_at || user.createdAt || now,
+      updated_at: user.updatedAt || now
+    };
+  });
+
+  const { error: subscriptionsError } = await supabase
+    .from("user_subscriptions")
+    .upsert(updateRows, { onConflict: "id" });
+  if (subscriptionsError) {
+    throw new Error(`[supabase-sync-subscriptions] ${subscriptionsError.message}`);
+  }
+}
+
+async function syncSupabasePayments(payments) {
+  if (!payments.length) {
+    return;
+  }
+
+  const rows = payments.map((payment) => {
+    const rawPayload = payment.raw && typeof payment.raw === "object" ? { ...payment.raw } : {};
+    rawPayload._app = {
+      outSum: toNumberOrNull(payment.outSum),
+      custom: payment.custom || null,
+      linkUrl: payment.linkUrl || null,
+      linkPageUrl: payment.linkPageUrl || null
+    };
+
+    return {
+      id: payment.id,
+      user_id: payment.userId,
+      plan_id: normalizePlanId(payment.planId) || "free",
+      provider: mapBillingProviderToDb(payment.provider),
+      provider_bill_id: payment.billId || null,
+      provider_order_id: payment.orderId || "",
+      provider_transaction_id: payment.trsId || null,
+      amount: toNumberOrNull(payment.amount) ?? 0,
+      currency: String(payment.currency || CARDLINK_CURRENCY).toUpperCase(),
+      commission: toNumberOrNull(payment.commission),
+      status: appPaymentStatusToDb(payment.status),
+      source: payment.source || "unknown",
+      raw_payload: rawPayload,
+      paid_at: payment.paidAt || null,
+      failed_at: payment.failedAt || null,
+      created_at: payment.createdAt || new Date().toISOString(),
+      updated_at: payment.updatedAt || payment.createdAt || new Date().toISOString()
+    };
+  });
+
+  const { error } = await supabase
+    .from("payments")
+    .upsert(rows, { onConflict: "id" });
+  if (error) {
+    throw new Error(`[supabase-sync-payments] ${error.message}`);
+  }
+}
+
+async function syncSupabaseLeads(leads) {
+  if (!leads.length) {
+    return;
+  }
+
+  const rows = leads.map((lead) => ({
+    id: lead.id,
+    name: clampText(lead.name || "", 120),
+    email: clampText(String(lead.email || "").toLowerCase(), 160),
+    phone: clampText(lead.phone || "", 80),
+    company: clampText(lead.company || "", 160),
+    goal: clampText(lead.goal || "", 2000),
+    source: clampText(lead.source || "landing", 120),
+    status: appLeadStatusToDb(lead.status),
+    note: clampText(lead.note || "", 2000),
+    created_at: lead.createdAt || new Date().toISOString(),
+    updated_at: lead.updatedAt || lead.createdAt || new Date().toISOString()
+  }));
+
+  const { error } = await supabase
+    .from("leads")
+    .upsert(rows, { onConflict: "id" });
+  if (error) {
+    throw new Error(`[supabase-sync-leads] ${error.message}`);
+  }
 }
 
 function makeId() {
@@ -1563,6 +2467,117 @@ function isValidEmail(value) {
   }
 
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function mapUserRoleToDb(value) {
+  const role = String(value || "").toLowerCase();
+  return USER_ROLES.has(role) ? role : "user";
+}
+
+function mapUserStatusToDb(value) {
+  const status = String(value || "").toLowerCase();
+  return status === "blocked" ? "blocked" : "active";
+}
+
+function mapBillingProviderToDb(value) {
+  const provider = String(value || "").toLowerCase();
+  if (provider === "cardlink") {
+    return "cardlink";
+  }
+  if (provider === "manual") {
+    return "manual";
+  }
+  return "other";
+}
+
+function dbPaymentStatusToApp(value) {
+  const status = String(value || "").toLowerCase();
+  const map = {
+    new: "NEW",
+    process: "PROCESS",
+    success: "SUCCESS",
+    overpaid: "OVERPAID",
+    underpaid: "UNDERPAID",
+    fail: "FAIL",
+    refunded: "REFUNDED",
+    chargeback: "CHARGEBACK"
+  };
+  return map[status] || "NEW";
+}
+
+function appPaymentStatusToDb(value) {
+  const status = String(value || "").toUpperCase();
+  const map = {
+    NEW: "new",
+    PROCESS: "process",
+    SUCCESS: "success",
+    OVERPAID: "overpaid",
+    UNDERPAID: "underpaid",
+    FAIL: "fail",
+    REFUNDED: "refunded",
+    CHARGEBACK: "chargeback"
+  };
+  const mapped = map[status] || "new";
+  return DB_PAYMENT_STATUSES.has(mapped) ? mapped : "new";
+}
+
+function dbLeadStatusToApp(value) {
+  const status = String(value || "").toLowerCase();
+  return LEAD_STATUSES.has(status) ? status : "new";
+}
+
+function appLeadStatusToDb(value) {
+  const status = String(value || "").toLowerCase();
+  return LEAD_STATUSES.has(status) ? status : "new";
+}
+
+function subscriptionStatusToPlanStatus(value, planId) {
+  const status = String(value || "").toLowerCase();
+  if (!status || !SUBSCRIPTION_STATUSES.has(status)) {
+    return planId === "free" ? "inactive" : "inactive";
+  }
+  if (status === "active" || status === "trialing") {
+    return "active";
+  }
+  if (status === "payment_failed" || status === "past_due") {
+    return "payment_failed";
+  }
+  return status;
+}
+
+function planStatusToSubscriptionStatus(value, planId) {
+  const status = String(value || "").toLowerCase();
+  if (status === "active") {
+    return "active";
+  }
+  if (status === "payment_failed") {
+    return "payment_failed";
+  }
+  if (status === "canceled") {
+    return "canceled";
+  }
+  if (status === "expired") {
+    return "expired";
+  }
+  return planId === "free" ? "inactive" : "inactive";
+}
+
+function planGenerationLimit(planId) {
+  if (planId === "free") {
+    return 30;
+  }
+  if (planId === "plus") {
+    return 300;
+  }
+  if (planId === "pro") {
+    return null;
+  }
+  return null;
+}
+
+function toNullIfEmpty(value) {
+  const text = String(value || "").trim();
+  return text ? text : null;
 }
 
 function clampText(value, maxLength) {

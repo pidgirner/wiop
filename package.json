@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch server/index.js",
     "start": "node server/index.js",
-    "check": "node --check app.js && node --check server/index.js"
+    "check": "node --check app.js && node --check server/index.js",
+    "migrate:supabase": "node scripts/migrate-local-db-to-supabase.js"
   },
   "keywords": [],
   "author": "",

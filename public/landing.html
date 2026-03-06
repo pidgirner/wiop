@@ -3,17 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Liquid Content Studio — AI платформа для генерации контента, постов, видео и аудио</title>
+    <title>Liquid Content Studio - AI платформа для генерации контента, постов, видео и аудио</title>
     <meta
       name="description"
-      content="Liquid Content Studio помогает бизнесу и экспертам быстро создавать фото, видео, аудио, тексты и готовые посты. Подписка Free/Plus/Pro, аналитика и история генераций."
+      content="Liquid Content Studio помогает бизнесу и креаторам быстро создавать фото, видео, аудио, тексты и готовые посты. Подписка Free/Plus/Pro, аналитика и история генераций."
     />
     <meta name="format-detection" content="telephone=no" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="theme-color" content="#ecf7ff" />
     <link rel="canonical" href="__BASE_URL__/" />
     <link rel="sitemap" type="application/xml" href="__BASE_URL__/sitemap.xml" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Liquid Content Studio — AI платформа для генерации контента" />
+    <meta property="og:title" content="Liquid Content Studio - AI платформа для генерации контента" />
     <meta property="og:site_name" content="Liquid Content Studio" />
     <meta
       property="og:description"
@@ -32,10 +33,11 @@
     <meta name="google-site-verification" content="__GOOGLE_SITE_VERIFICATION__" />
     <link rel="alternate" hreflang="ru" href="__BASE_URL__/" />
     <link rel="alternate" hreflang="x-default" href="__BASE_URL__/" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@500;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/landing.css" />
@@ -115,169 +117,360 @@
     </script>
   </head>
   <body>
-    <header class="hero">
-      <nav class="main-nav">
-        <a class="brand" href="/">Liquid Content Studio</a>
+    <div class="bg-layer bg-layer-a" aria-hidden="true"></div>
+    <div class="bg-layer bg-layer-b" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="hero-shell">
+      <nav class="main-nav glass" data-reveal>
+        <a class="brand" href="/">
+          <span class="brand-dot"></span>
+          <span>Liquid Content Studio</span>
+        </a>
+
         <div class="nav-links">
           <a href="#features">Возможности</a>
+          <a href="#gallery">Шаблоны</a>
           <a href="#pricing">Тарифы</a>
           <a href="#faq">FAQ</a>
           <a class="nav-cta" href="/app">Открыть приложение</a>
         </div>
       </nav>
 
-      <div class="hero-grid">
-        <article>
-          <p class="kicker">AI контент-платформа для бизнеса</p>
-          <h1>Создавайте контент, который приводит клиентов, а не просто лайки</h1>
+      <section class="hero glass">
+        <div class="hero-copy" data-reveal style="--reveal-delay: 60ms">
+          <p class="kicker">AI для креаторов и маркетинга</p>
+          <h1>Яркий контент каждый день: от идеи до готового поста за минуты</h1>
           <p class="lead">
-            Генерируйте фото, видео, аудио, тексты и готовые посты в одном приложении.
-            Ускорьте контент-маркетинг, снизьте стоимость продакшена и масштабируйте публикации.
+            Генерируйте тексты, визуальные концепты, видео-сценарии и аудио-скрипты в одном стильном workspace.
+            Liquid Content Studio помогает публиковать быстрее, тестировать больше гипотез и стабильно растить охваты.
           </p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="/app">Попробовать бесплатно</a>
-            <a class="btn btn-ghost" href="#lead">Получить демо</a>
-          </div>
-          <ul class="hero-points">
-            <li>Тарифы Free / Plus / Pro</li>
-            <li>История генераций и единый профиль</li>
-            <li>Админ-панель для команды и аналитики</li>
-          </ul>
-        </article>
 
-        <aside class="hero-card">
-          <h2>Что вы получаете за 1 день</h2>
-          <div class="metric-list">
-            <div>
-              <span>+80%</span>
-              <p>скорости создания контента</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/app">Запустить бесплатно</a>
+            <a class="btn btn-soft" href="#lead">Получить демо</a>
+          </div>
+
+          <ul class="hero-benefits">
+            <li>
+              <span class="benefit-icon">⚡</span>
+              <span>5 форматов контента в одной платформе</span>
+            </li>
+            <li>
+              <span class="benefit-icon">📈</span>
+              <span>История генераций и аналитика по клиентам</span>
+            </li>
+            <li>
+              <span class="benefit-icon">💳</span>
+              <span>Подписки Free / Plus / Pro с оплатой онлайн</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="hero-stage-wrap" data-reveal style="--reveal-delay: 140ms">
+          <div class="hero-stage" id="heroStage">
+            <div class="stage-head">
+              <span></span>
+              <span></span>
+              <span></span>
             </div>
-            <div>
-              <span>-60%</span>
-              <p>времени на рутину SMM</p>
-            </div>
-            <div>
-              <span>5 форматов</span>
-              <p>в одной платформе</p>
+            <div class="stage-grid">
+              <article class="stage-card stage-card-photo">
+                <p>Фото-концепт</p>
+                <h3>Neon street creator shoot</h3>
+                <div class="stage-bars">
+                  <span></span><span></span><span></span>
+                </div>
+              </article>
+              <article class="stage-card stage-card-post">
+                <p>Готовый пост</p>
+                <h3>Instagram launch copy</h3>
+                <div class="stage-tags">
+                  <span>#content</span><span>#creator</span><span>#growth</span>
+                </div>
+              </article>
+              <article class="stage-card stage-card-audio">
+                <p>Аудио-скрипт</p>
+                <h3>Podcast teaser 30s</h3>
+                <div class="wave">
+                  <i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </article>
             </div>
           </div>
-        </aside>
-      </div>
+
+          <img
+            class="stage-logo stage-logo-main"
+            src="/icons/icon-512-maskable.png"
+            width="112"
+            height="112"
+            loading="eager"
+            alt="Иконка Liquid Content Studio"
+          />
+          <img
+            class="stage-logo stage-logo-secondary"
+            src="/icons/icon-192-maskable.png"
+            width="76"
+            height="76"
+            loading="lazy"
+            alt="Логотип приложения"
+          />
+
+          <div class="floating-pill pill-one">+120 постов / нед</div>
+          <div class="floating-pill pill-two">CTR creatives +38%</div>
+        </div>
+      </section>
     </header>
 
     <main>
-      <section id="features" class="section">
-        <div class="section-head">
-          <h2>Почему выбирают Liquid Content Studio</h2>
-          <p>Платформа закрывает весь цикл: идея → генерация → публикация → аналитика.</p>
+      <section id="gallery" class="section glass">
+        <div class="section-head" data-reveal>
+          <p class="section-kicker">Визуальная витрина</p>
+          <h2>Шаблоны, которые выглядят как работа полноценной контент-студии</h2>
+          <p>Выбирайте формат, задавайте тон и получайте готовую основу для публикаций, рилсов и прогревов.</p>
         </div>
-        <div class="cards">
-          <article class="card">
-            <h3>Мультимодальная генерация</h3>
-            <p>Текст, визуал, аудио и видео-сценарии в одном интерфейсе без переключения между сервисами.</p>
+
+        <div class="gallery-grid">
+          <article class="gallery-card" data-reveal style="--reveal-delay: 60ms">
+            <div class="gallery-art gallery-art-photo">
+              <svg viewBox="0 0 320 220" role="img" aria-label="Пример визуального шаблона">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#7cf2ff" />
+                    <stop offset="100%" stop-color="#1f9eff" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="320" height="220" rx="28" fill="url(#g1)" />
+                <circle cx="258" cy="52" r="35" fill="rgba(255,255,255,0.45)" />
+                <path d="M0 165 Q80 120 130 155 T320 150 V220 H0 Z" fill="rgba(255,255,255,0.38)" />
+                <rect x="28" y="28" width="124" height="24" rx="12" fill="rgba(8,36,76,0.28)" />
+                <rect x="28" y="60" width="168" height="14" rx="7" fill="rgba(8,36,76,0.23)" />
+              </svg>
+            </div>
+            <h3>Фото-референсы</h3>
+            <p>Свет, композиция, атмосфера и стиль под конкретную площадку.</p>
           </article>
-          <article class="card">
-            <h3>Готовые посты под соцсети</h3>
-            <p>Получайте структурированные публикации с CTA, тезисами и хештегами под нужную платформу.</p>
+
+          <article class="gallery-card" data-reveal style="--reveal-delay: 120ms">
+            <div class="gallery-art gallery-art-video">
+              <svg viewBox="0 0 320 220" role="img" aria-label="Пример сценария для видео">
+                <defs>
+                  <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffd86f" />
+                    <stop offset="100%" stop-color="#ff7a59" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="320" height="220" rx="28" fill="url(#g2)" />
+                <rect x="32" y="34" width="192" height="20" rx="10" fill="rgba(77,20,4,0.27)" />
+                <rect x="32" y="64" width="120" height="14" rx="7" fill="rgba(77,20,4,0.2)" />
+                <rect x="32" y="96" width="256" height="88" rx="16" fill="rgba(255,255,255,0.34)" />
+                <polygon points="156,118 156,160 192,139" fill="rgba(77,20,4,0.56)" />
+              </svg>
+            </div>
+            <h3>Видео-сценарии</h3>
+            <p>Структура по секундам: хук, основной блок, CTA и монтажные подсказки.</p>
           </article>
-          <article class="card">
-            <h3>Управление подписками</h3>
-            <p>Гибкая монетизация через Free/Plus/Pro и прозрачная история платежей.</p>
-          </article>
-          <article class="card">
-            <h3>Админ-панель</h3>
-            <p>Контроль клиентов, планов, ролей и платежной аналитики в реальном времени.</p>
+
+          <article class="gallery-card" data-reveal style="--reveal-delay: 180ms">
+            <div class="gallery-art gallery-art-post">
+              <svg viewBox="0 0 320 220" role="img" aria-label="Пример текстового шаблона поста">
+                <defs>
+                  <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#84ffb2" />
+                    <stop offset="100%" stop-color="#2ac8b2" />
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="320" height="220" rx="28" fill="url(#g3)" />
+                <rect x="34" y="30" width="252" height="156" rx="18" fill="rgba(255,255,255,0.62)" />
+                <rect x="54" y="54" width="170" height="18" rx="9" fill="rgba(9,85,74,0.32)" />
+                <rect x="54" y="84" width="212" height="10" rx="5" fill="rgba(9,85,74,0.2)" />
+                <rect x="54" y="101" width="212" height="10" rx="5" fill="rgba(9,85,74,0.2)" />
+                <rect x="54" y="118" width="180" height="10" rx="5" fill="rgba(9,85,74,0.2)" />
+                <rect x="54" y="146" width="112" height="20" rx="10" fill="rgba(9,85,74,0.35)" />
+              </svg>
+            </div>
+            <h3>Посты под соцсети</h3>
+            <p>Готовый текст с CTA и хештегами, который можно публиковать сразу.</p>
           </article>
         </div>
       </section>
 
-      <section id="pricing" class="section pricing">
-        <div class="section-head">
-          <h2>Тарифы для разного масштаба</h2>
-          <p>Начинайте бесплатно и переходите на Plus/Pro, когда нужен объем и скорость.</p>
+      <section id="features" class="section glass">
+        <div class="section-head" data-reveal>
+          <p class="section-kicker">Почему это работает</p>
+          <h2>Создано для темпа, в котором живут контент-креаторы</h2>
+          <p>От быстрой идеи утром до серии публикаций к вечеру: все в одном рабочем цикле.</p>
         </div>
+
+        <div class="feature-grid">
+          <article class="feature-card" data-reveal style="--reveal-delay: 40ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 3 7l9 5 9-5-9-5Zm-9 8 9 5 9-5v7l-9 5-9-5v-7Z" /></svg>
+            </span>
+            <h3>Мультимодальный движок</h3>
+            <p>Текст, фото, видео, аудио и посты без переключений между сервисами.</p>
+          </article>
+
+          <article class="feature-card" data-reveal style="--reveal-delay: 80ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4V4Zm0 6h10v4H4v-4Zm0 6h16v4H4v-4Z" /></svg>
+            </span>
+            <h3>История генераций</h3>
+            <p>Весь контент хранится в аккаунте и доступен на любом устройстве как библиотека.</p>
+          </article>
+
+          <article class="feature-card" data-reveal style="--reveal-delay: 120ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-9V3Zm2 0v7h7A9 9 0 0 0 14 3Z" /></svg>
+            </span>
+            <h3>Админ аналитика</h3>
+            <p>Платежи, конверсии и управление клиентами в одной панели для команды.</p>
+          </article>
+
+          <article class="feature-card" data-reveal style="--reveal-delay: 160ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 1 3 5v6c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V5l-9-4Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 14c-2.5-.8-4.7-2.8-6-5.3.1-2 4-3.1 6-3.1s5.9 1.1 6 3.1c-1.3 2.5-3.5 4.5-6 5.3Z" /></svg>
+            </span>
+            <h3>Полный профиль</h3>
+            <p>Учетная запись, тариф, история оплат и персонализация в одном месте.</p>
+          </article>
+
+          <article class="feature-card" data-reveal style="--reveal-delay: 200ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M2 12h4l2-5 4 10 2-5h8" /></svg>
+            </span>
+            <h3>Тонкая настройка тона</h3>
+            <p>Премиальный, дружелюбный, экспертный и другие стили под цель кампании.</p>
+          </article>
+
+          <article class="feature-card" data-reveal style="--reveal-delay: 240ms">
+            <span class="icon-wrap" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Zm0 8L2 5v12l10 5 10-5V5l-10 5Z" /></svg>
+            </span>
+            <h3>PWA и мобильность</h3>
+            <p>Работает как приложение: быстро, удобно, с нижним навбаром на мобильном.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="pricing" class="section glass pricing">
+        <div class="section-head" data-reveal>
+          <p class="section-kicker">Тарифы</p>
+          <h2>Выберите темп производства контента</h2>
+          <p>Начните с Free и переходите на Plus или Pro, когда растет поток задач и клиентов.</p>
+        </div>
+
         <div class="pricing-grid">
-          <article class="price-card">
+          <article class="price-card" data-reveal style="--reveal-delay: 40ms">
             <h3>Free</h3>
-            <p class="price">0 ₽</p>
+            <p class="price">0 <span>RUB</span></p>
             <ul>
               <li>До 30 генераций в месяц</li>
-              <li>Базовые форматы контента</li>
-              <li>История и профиль</li>
+              <li>Текст, фото и готовые посты</li>
+              <li>Личный профиль и история</li>
             </ul>
+            <a class="btn btn-soft" href="/app">Попробовать</a>
           </article>
-          <article class="price-card highlight">
+
+          <article class="price-card featured" data-reveal style="--reveal-delay: 100ms">
+            <p class="badge">Самый популярный</p>
             <h3>Plus</h3>
-            <p class="price">19 ₽</p>
+            <p class="price">19 <span>RUB</span></p>
             <ul>
               <li>До 300 генераций в месяц</li>
               <li>Все форматы контента</li>
-              <li>Ускоренный workflow</li>
+              <li>Оптимален для активных авторов</li>
             </ul>
+            <a class="btn btn-primary" href="/app">Выбрать Plus</a>
           </article>
-          <article class="price-card">
+
+          <article class="price-card" data-reveal style="--reveal-delay: 160ms">
             <h3>Pro</h3>
-            <p class="price">59 ₽</p>
+            <p class="price">59 <span>RUB</span></p>
             <ul>
-              <li>Безлимитные генерации</li>
-              <li>Командная работа и админка</li>
-              <li>Приоритетный рост и масштаб</li>
+              <li>Практически безлимитный поток</li>
+              <li>Команда и админ-функции</li>
+              <li>Максимальная скорость производства</li>
             </ul>
+            <a class="btn btn-soft" href="/app">Выбрать Pro</a>
           </article>
         </div>
       </section>
 
-      <section id="lead" class="section lead-section">
-        <div class="section-head">
-          <h2>Получите персональную стратегию внедрения</h2>
-          <p>Оставьте заявку, и мы покажем, как внедрить платформу в вашу контент-воронку.</p>
-        </div>
+      <section id="lead" class="section glass lead-section">
+        <div class="lead-layout">
+          <div class="lead-copy" data-reveal>
+            <p class="section-kicker">Персональное внедрение</p>
+            <h2>Покажем, как превратить AI-контент в стабильный поток заявок</h2>
+            <p>
+              Оставьте контакты, и мы подготовим демонстрацию под вашу нишу: контент-стратегия, воронка публикаций,
+              и процесс для команды.
+            </p>
 
-        <form id="leadForm" class="lead-form">
-          <div class="grid-2">
-            <label>
-              Имя
-              <input id="leadName" name="name" type="text" placeholder="Ваше имя" required />
-            </label>
-            <label>
-              Email
-              <input id="leadEmail" name="email" type="email" placeholder="name@company.com" required />
-            </label>
+            <div class="lead-points">
+              <div>
+                <strong>15 минут</strong>
+                <span>на разбор вашей задачи</span>
+              </div>
+              <div>
+                <strong>3 сценария</strong>
+                <span>контент-пайплайна под вашу цель</span>
+              </div>
+              <div>
+                <strong>1 roadmap</strong>
+                <span>по запуску на ближайший месяц</span>
+              </div>
+            </div>
           </div>
-          <div class="grid-2">
+
+          <form id="leadForm" class="lead-form" data-reveal style="--reveal-delay: 80ms">
+            <div class="grid-2">
+              <label>
+                Имя
+                <input id="leadName" name="name" type="text" placeholder="Ваше имя" required />
+              </label>
+              <label>
+                Email
+                <input id="leadEmail" name="email" type="email" placeholder="name@company.com" required />
+              </label>
+            </div>
+            <div class="grid-2">
+              <label>
+                Телефон / Telegram
+                <input id="leadPhone" name="phone" type="text" placeholder="+996... или @username" />
+              </label>
+              <label>
+                Компания
+                <input id="leadCompany" name="company" type="text" placeholder="Название компании" />
+              </label>
+            </div>
             <label>
-              Телефон / Telegram
-              <input id="leadPhone" name="phone" type="text" placeholder="+996... или @username" />
+              Задача
+              <textarea id="leadGoal" name="goal" rows="3" placeholder="Что хотите улучшить: охваты, лиды, продажи"></textarea>
             </label>
-            <label>
-              Компания
-              <input id="leadCompany" name="company" type="text" placeholder="Название компании" />
-            </label>
-          </div>
-          <label>
-            Задача
-            <textarea id="leadGoal" name="goal" rows="3" placeholder="Что хотите улучшить: охваты, лиды, продажи"></textarea>
-          </label>
-          <button class="btn btn-primary" type="submit">Получить демо и аудит контента</button>
-          <p id="leadMessage" class="lead-message" aria-live="polite"></p>
-        </form>
+            <button class="btn btn-primary" type="submit">Получить демо и контент-аудит</button>
+            <p id="leadMessage" class="lead-message" aria-live="polite"></p>
+          </form>
+        </div>
       </section>
 
-      <section id="faq" class="section faq">
-        <div class="section-head">
+      <section id="faq" class="section glass faq">
+        <div class="section-head" data-reveal>
+          <p class="section-kicker">FAQ</p>
           <h2>Частые вопросы</h2>
-          <p>Ответы по внедрению, оплате и работе сервиса.</p>
+          <p>Коротко о запуске, оплате и ежедневной работе с платформой.</p>
         </div>
+
         <div class="faq-list">
-          <details>
+          <details data-reveal style="--reveal-delay: 40ms">
             <summary>Как быстро можно начать работу?</summary>
             <p>После регистрации вы сразу можете запускать генерации и тестировать тариф Free.</p>
           </details>
-          <details>
+          <details data-reveal style="--reveal-delay: 80ms">
             <summary>Подходит ли сервис агентствам и командам?</summary>
             <p>Да, через админ-панель удобно управлять пользователями, ролями и платежной аналитикой.</p>
           </details>
-          <details>
+          <details data-reveal style="--reveal-delay: 120ms">
             <summary>Как принимаются платежи?</summary>
             <p>Оплата подписок проходит через Cardlink, статус автоматически синхронизируется в аккаунте.</p>
           </details>
@@ -285,8 +478,8 @@
       </section>
     </main>
 
-    <footer class="footer">
-      <p>© <span id="year"></span> Liquid Content Studio. AI-контент для роста бизнеса.</p>
+    <footer class="footer glass" data-reveal>
+      <p>© <span id="year"></span> Liquid Content Studio. Создано для креаторов, которым важны скорость и стиль.</p>
       <a href="/app">Перейти в приложение</a>
     </footer>
 

@@ -95,6 +95,7 @@ let adminState = {
 
 let adminSearchTimer = null;
 let deferredInstallPrompt = null;
+let generationInFlight = false;
 
 const elements = {
   activePlanBadge: document.getElementById("activePlanBadge"),
@@ -108,6 +109,7 @@ const elements = {
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
   generatorForm: document.getElementById("generatorForm"),
+  generateSubmitBtn: document.querySelector("#generatorForm button[type='submit']"),
   promptInput: document.getElementById("promptInput"),
   toneSelect: document.getElementById("toneSelect"),
   platformSelect: document.getElementById("platformSelect"),
@@ -200,19 +202,7 @@ function bindEvents() {
   elements.historyList.addEventListener("click", onHistoryAction);
 
   elements.clearHistoryBtn.addEventListener("click", () => {
-    if (!state.history.length) {
-      return;
-    }
-
-    const accepted = window.confirm("Очистить всю историю генераций?");
-    if (!accepted) {
-      return;
-    }
-
-    state.history = [];
-    state.latestId = null;
-    saveState();
-    renderAll();
+    void onClearHistory();
   });
 
   elements.plansGrid.addEventListener("click", (event) => {
@@ -325,6 +315,13 @@ async function bootstrap() {
 
   if (state.authToken) {
     await refreshCurrentUser();
+    if (currentUser) {
+      try {
+        await loadGenerationHistory();
+      } catch (error) {
+        setMessage(elements.generatorMessage, error.message, "error");
+      }
+    }
   }
 
   await handleCheckoutReturn();
@@ -494,6 +491,9 @@ async function refreshCurrentUser() {
     state.authToken = "";
     currentUser = null;
     clearProfileState();
+    state.history = [];
+    state.latestId = null;
+    state.usage = {};
     saveState();
   }
 }
@@ -604,6 +604,11 @@ async function onAuthSubmit() {
     state.authToken = data.token;
     currentUser = data.user;
     syncUserToState(currentUser);
+    try {
+      await loadGenerationHistory();
+    } catch (error) {
+      setMessage(elements.generatorMessage, error.message, "error");
+    }
     saveState();
 
     elements.authPassword.value = "";
@@ -629,6 +634,9 @@ function onLogout() {
   currentUser = null;
   state.authToken = "";
   clearProfileState();
+  state.history = [];
+  state.latestId = null;
+  state.usage = {};
   adminState = {
     overview: null,
     users: [],
@@ -751,8 +759,19 @@ async function refreshBillingStatus() {
   }
 }
 
-function onGenerate(event) {
+async function onGenerate(event) {
   event.preventDefault();
+
+  if (!currentUser) {
+    setActiveView("profile");
+    setMessage(elements.authMessage, "Войдите в аккаунт, чтобы запускать AI-генерацию.", "error");
+    setMessage(elements.generatorMessage, "Генерация доступна после входа в аккаунт.", "error");
+    return;
+  }
+
+  if (generationInFlight) {
+    return;
+  }
 
   const prompt = elements.promptInput.value.trim();
   if (!prompt) {
@@ -770,84 +789,34 @@ function onGenerate(event) {
   const tone = elements.toneSelect.value;
   const platform = elements.platformSelect.value;
 
-  const generated = buildOutput({ type, prompt, tone, platform });
+  generationInFlight = true;
+  setGenerateButtonState(true);
+  setMessage(elements.generatorMessage, "Генерация запущена...", "success");
 
-  const item = {
-    id: makeId(),
-    type,
-    prompt,
-    title: generated.title,
-    output: generated.body,
-    tone,
-    platform,
-    createdAt: new Date().toISOString()
-  };
+  try {
+    const data = await apiRequest("/api/generations", {
+      method: "POST",
+      auth: true,
+      body: {
+        type,
+        prompt,
+        tone,
+        platform
+      }
+    });
 
-  state.history.unshift(item);
-  state.latestId = item.id;
-  incrementUsage();
-  saveState();
-  renderAll();
-
-  setMessage(elements.generatorMessage, "Контент сгенерирован и добавлен в историю.", "success");
-}
-
-function buildOutput({ type, prompt, tone, platform }) {
-  const trimmed = prompt.replace(/\s+/g, " ").trim();
-  const hook = `Фокус: ${capitalize(trimmed.split(" ").slice(0, 8).join(" "))}`;
-
-  if (type === "text") {
-    return {
-      title: `Текст для ${platform}`,
-      body: `${hook}\n\n${platform}: подача в ${tone} тоне.\n\n` +
-        "1) Сильный первый абзац с ценностью.\n" +
-        "2) Два практических пункта, которые легко применить.\n" +
-        "3) Четкий призыв к действию в конце."
-    };
+    const item = normalizeHistoryItem(data.item);
+    state.history = [item, ...state.history.filter((entry) => entry.id !== item.id)];
+    state.latestId = item.id;
+    saveState();
+    renderAll();
+    setMessage(elements.generatorMessage, "Контент сгенерирован и сохранен в облачной истории.", "success");
+  } catch (error) {
+    setMessage(elements.generatorMessage, error.message, "error");
+  } finally {
+    generationInFlight = false;
+    setGenerateButtonState(false);
   }
-
-  if (type === "image") {
-    return {
-      title: `Концепт фото для ${platform}`,
-      body: `${hook}\n\nСцена: clean liquid glass, мягкий дневной свет и прозрачные фактуры.\n` +
-        "Композиция: объект в центре, вторичный акцент слева, много воздуха.\n" +
-        "Текст на визуале: короткий хук до 5 слов.\n" +
-        "Техпресет: 4k, высокая детализация, мягкий контраст."
-    };
-  }
-
-  if (type === "video") {
-    return {
-      title: `Сценарий видео для ${platform}`,
-      body: `${hook}\n\nСценарий 20 сек:\n` +
-        "0-3с: резкий хук и крупный план.\n" +
-        "4-10с: показать проблему и контраст до/после.\n" +
-        "11-17с: 2 ключевых шага решения.\n" +
-        `18-20с: CTA и подпись в ${tone} стиле.\n\n` +
-        "Монтаж: быстрые склейки, субтитры, чистый саунд-дизайн."
-    };
-  }
-
-  if (type === "audio") {
-    return {
-      title: `Аудио-скрипт для ${platform}`,
-      body: `${hook}\n\nИнтро (2с): короткий аудио-брендинг.\n` +
-        `Основной блок: голос в ${tone} тоне, темп 135 wpm.\n` +
-        "Финал: повтор CTA и имя бренда.\n\n" +
-        "Рекомендация: подложка lo-fi без вокала, -18 LUFS."
-    };
-  }
-
-  return {
-    title: `Готовый пост для ${platform}`,
-    body: `${hook}\n\n` +
-      "Пост:\n" +
-      `${capitalize(trimmed)} — это возможность выделиться без лишнего шума.\n` +
-      "Мы собрали структуру, которая дает быстрый результат: идея, ценность и четкий следующий шаг.\n" +
-      "Сохрани пост и используй как шаблон в следующей кампании.\n\n" +
-      "CTA: Напишите \"хочу шаблон\" в комментариях.\n" +
-      `#контент #маркетинг #creator #${platform.toLowerCase()}`
-  };
 }
 
 async function loadAdminData(forceMessage) {
@@ -1154,13 +1123,52 @@ async function onHistoryAction(event) {
   }
 
   const id = deleteButton.dataset.id;
-  state.history = state.history.filter((item) => item.id !== id);
-  if (state.latestId === id) {
-    state.latestId = state.history[0]?.id || null;
+  try {
+    if (currentUser) {
+      await apiRequest(`/api/generations/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        auth: true
+      });
+    }
+
+    state.history = state.history.filter((item) => item.id !== id);
+    if (state.latestId === id) {
+      state.latestId = state.history[0]?.id || null;
+    }
+
+    saveState();
+    renderAll();
+  } catch (error) {
+    setMessage(elements.generatorMessage, error.message, "error");
+  }
+}
+
+async function onClearHistory() {
+  if (!state.history.length) {
+    return;
   }
 
-  saveState();
-  renderAll();
+  const accepted = window.confirm("Очистить всю историю генераций?");
+  if (!accepted) {
+    return;
+  }
+
+  try {
+    if (currentUser) {
+      await apiRequest("/api/generations", {
+        method: "DELETE",
+        auth: true
+      });
+    }
+
+    state.history = [];
+    state.latestId = null;
+    saveState();
+    renderAll();
+    setMessage(elements.generatorMessage, "История генераций очищена.", "success");
+  } catch (error) {
+    setMessage(elements.generatorMessage, error.message, "error");
+  }
 }
 
 function renderPlans() {
@@ -1411,7 +1419,7 @@ function renderAdminLeads() {
     return;
   }
 
-  const statuses = ["new", "contacted", "qualified", "converted", "archived"];
+  const statuses = ["new", "contacted", "qualified", "converted", "archived", "lost"];
 
   elements.adminLeadsBody.innerHTML = rows
     .map((lead) => {
@@ -1459,6 +1467,13 @@ function setActiveView(viewId) {
 }
 
 function canGenerate(type) {
+  if (!currentUser) {
+    return {
+      ok: false,
+      reason: "Войдите в аккаунт, чтобы использовать AI-генератор."
+    };
+  }
+
   const plan = getCurrentPlan();
 
   if (!plan.allowedTypes.includes(type)) {
@@ -1493,14 +1508,9 @@ function isTypeAllowed(type) {
   return getCurrentPlan().allowedTypes.includes(type);
 }
 
-function incrementUsage() {
-  const key = monthKey();
-  const current = Number(state.usage[key] || 0);
-  state.usage[key] = current + 1;
-}
-
 function getCurrentMonthUsage() {
-  return Number(state.usage[monthKey()] || 0);
+  const currentKey = monthKey();
+  return state.history.filter((item) => monthKey(new Date(item.createdAt)) === currentKey).length;
 }
 
 function getCurrentPlanId() {
@@ -1552,6 +1562,44 @@ function syncUserToState(user) {
   state.profile.joinedAt = user.createdAt || state.profile.joinedAt || new Date().toISOString();
 
   ensureSelectedType();
+}
+
+async function loadGenerationHistory() {
+  if (!currentUser) {
+    return;
+  }
+
+  const data = await apiRequest("/api/generations?limit=500", { auth: true });
+  const items = Array.isArray(data.data) ? data.data.map(normalizeHistoryItem) : [];
+  items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  state.history = items;
+  state.latestId = items[0]?.id || null;
+  saveState();
+}
+
+function normalizeHistoryItem(item) {
+  const type = String(item?.type || "").toLowerCase();
+  return {
+    id: String(item?.id || makeId()),
+    type: CONTENT_TYPES[type] ? type : "text",
+    prompt: String(item?.prompt || "").trim(),
+    title: String(item?.title || "").trim() || "Без названия",
+    output: String(item?.output || "").trim(),
+    tone: String(item?.tone || "").trim(),
+    platform: String(item?.platform || "").trim() || "General",
+    model: String(item?.model || "").trim(),
+    status: String(item?.status || "").trim() || "completed",
+    createdAt: item?.createdAt || new Date().toISOString()
+  };
+}
+
+function setGenerateButtonState(loading) {
+  if (!elements.generateSubmitBtn) {
+    return;
+  }
+
+  elements.generateSubmitBtn.disabled = loading;
+  elements.generateSubmitBtn.textContent = loading ? "Генерируем..." : "Сгенерировать";
 }
 
 function isAdmin() {
@@ -1637,14 +1685,6 @@ function getInitials(source) {
     .slice(0, 2) || "LC";
 }
 
-function capitalize(value) {
-  if (!value) {
-    return "";
-  }
-
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 function makeId() {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
     return globalThis.crypto.randomUUID();
@@ -1672,6 +1712,8 @@ function loadState() {
 
     if (!Array.isArray(safe.history)) {
       safe.history = [];
+    } else {
+      safe.history = safe.history.map(normalizeHistoryItem);
     }
 
     if (!safe.profile.joinedAt) {
