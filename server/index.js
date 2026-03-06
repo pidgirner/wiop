@@ -863,25 +863,15 @@ app.get("/index.html", (_req, res) => {
 });
 
 app.get("/app", (req, res) => {
-  if (!hasValidSessionCookie(req)) {
-    return res.redirect(302, "/?auth=1");
-  }
-
   res.set("X-Robots-Tag", "noindex, nofollow");
   res.sendFile(APP_INDEX_PATH);
 });
 
-app.get("/app/", (req, res) => {
-  if (!hasValidSessionCookie(req)) {
-    return res.redirect(302, "/?auth=1");
-  }
+app.get("/app/", (_req, res) => {
   res.redirect(302, "/app");
 });
 
-app.get(/^\/app\/.+/, (req, res) => {
-  if (!hasValidSessionCookie(req)) {
-    return res.redirect(302, "/?auth=1");
-  }
+app.get(/^\/app\/.+/, (_req, res) => {
   res.redirect(302, "/app");
 });
 

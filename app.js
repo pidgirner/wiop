@@ -140,6 +140,8 @@ const elements = {
   email: document.getElementById("email"),
   website: document.getElementById("website"),
   bio: document.getElementById("bio"),
+  profileHeroBlock: document.getElementById("profileHeroBlock"),
+  profileLayoutBlock: document.getElementById("profileLayoutBlock"),
   profileBackBtn: document.getElementById("profileBackBtn"),
   profileDisplayName: document.getElementById("profileDisplayName"),
   profileDisplayEmail: document.getElementById("profileDisplayEmail"),
@@ -197,17 +199,15 @@ const elements = {
 init();
 
 function init() {
-  if (!state.authToken) {
-    redirectToAuthGate();
-    return;
-  }
-
   bindEvents();
   setupPwa();
   applyAuthMode();
   ensureSelectedType();
   resizePromptInput();
   renderAll();
+  if (!state.authToken) {
+    setActiveView("profile");
+  }
   void bootstrap();
 }
 
@@ -725,7 +725,8 @@ async function refreshCurrentUser() {
     state.latestId = null;
     state.usage = {};
     saveState();
-    redirectToAuthGate();
+    renderAll();
+    setActiveView("profile");
   }
 }
 
@@ -888,7 +889,8 @@ async function onLogout() {
 
   saveState();
   renderAll();
-  redirectToAuthGate();
+  setActiveView("profile");
+  setMessage(elements.authMessage, "Вы вышли из аккаунта.", "success");
 }
 
 function clearProfileState() {
@@ -1303,18 +1305,31 @@ function renderTopBar() {
 
 function renderNavigation() {
   const activeView = elements.views.find((view) => view.classList.contains("active"))?.id.replace("view-", "") || "create";
+  const loggedIn = Boolean(currentUser);
   elements.navViewButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.navView === activeView);
+    const viewId = button.dataset.navView;
+    const hiddenForGuest = !loggedIn && (viewId === "create" || viewId === "history" || viewId === "admin");
+    const hiddenForRole = viewId === "admin" && !isAdmin();
+    const hidden = hiddenForGuest || hiddenForRole;
+
+    button.classList.toggle("hidden", hidden);
+    button.classList.toggle("active", !hidden && viewId === activeView);
   });
 }
 
 function renderAuthPanel() {
   const loggedIn = Boolean(currentUser);
   if (elements.authLoggedOut) {
-    elements.authLoggedOut.classList.add("hidden");
+    elements.authLoggedOut.classList.toggle("hidden", loggedIn);
   }
   if (elements.authLoggedIn) {
-    elements.authLoggedIn.classList.add("hidden");
+    elements.authLoggedIn.classList.toggle("hidden", !loggedIn);
+  }
+  if (elements.profileHeroBlock) {
+    elements.profileHeroBlock.classList.toggle("hidden", !loggedIn);
+  }
+  if (elements.profileLayoutBlock) {
+    elements.profileLayoutBlock.classList.toggle("hidden", !loggedIn);
   }
 
   if (loggedIn) {
@@ -1893,6 +1908,10 @@ function setActiveView(viewId) {
     return;
   }
 
+  if (!currentUser && viewId !== "profile") {
+    viewId = "profile";
+  }
+
   if (viewId === "admin" && !isAdmin()) {
     viewId = "create";
   }
@@ -2098,10 +2117,8 @@ function setGenerateButtonState(loading) {
 }
 
 function redirectToAuthGate() {
-  const next = `${window.location.origin}/?auth=1`;
-  if (window.location.href !== next) {
-    window.location.replace(next);
-  }
+  setActiveView("profile");
+  setProfileTab("general", { persist: false });
 }
 
 function isAdmin() {

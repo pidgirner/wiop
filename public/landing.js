@@ -1,4 +1,5 @@
 const STORAGE_KEY = "liquid_content_studio_v3";
+const APP_ENTRY_URL = "/app";
 
 const yearNode = document.getElementById("year");
 const mobileMenuBtn = document.getElementById("mobileMenuBtn");
@@ -31,6 +32,11 @@ const leadForm = document.getElementById("leadForm");
 const leadMessage = document.getElementById("leadMessage");
 
 let authMode = "login";
+
+const standaloneMode = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+if (standaloneMode && !window.location.pathname.startsWith("/app")) {
+  window.location.replace(APP_ENTRY_URL);
+}
 
 if (yearNode) {
   yearNode.textContent = String(new Date().getFullYear());
@@ -67,7 +73,8 @@ if (mobileMenuBtn && mobileMenu) {
 }
 
 authOpenButtons.forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
     openAuth("login");
   });
 });
@@ -113,20 +120,8 @@ if (params.get("auth") === "1") {
 }
 
 function openAuth(mode = "login") {
-  setMode(mode);
-  clearAuthError();
-
-  if (!authModal) {
-    return;
-  }
-
-  authModal.classList.add("show");
-  authModal.classList.remove("hidden");
-  document.body.classList.add("no-scroll");
-
-  if (authEmail) {
-    authEmail.focus();
-  }
+  const target = new URL(APP_ENTRY_URL, window.location.origin);
+  window.location.href = `${target.pathname}${target.search}`;
 }
 
 function closeAuth() {

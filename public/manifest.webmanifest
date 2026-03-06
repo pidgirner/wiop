@@ -2,7 +2,7 @@
   "name": "Liquid Content Studio",
   "short_name": "Liquid Studio",
   "description": "AI-приложение для генерации контента и управления подпиской.",
-  "start_url": "/app",
+  "start_url": "/app?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

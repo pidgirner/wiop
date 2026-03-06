@@ -1,4 +1,4 @@
-const CACHE_VERSION = "lcs-v1.2.0";
+const CACHE_VERSION = "lcs-v1.3.0";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
