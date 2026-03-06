@@ -1222,7 +1222,10 @@ async function ensureRuntimeReady() {
   runtimeReadyPromise = (async () => {
     await ensureDb();
     await ensureAdminUser();
-  })();
+  })().catch((error) => {
+    runtimeReadyPromise = null;
+    throw error;
+  });
 
   return runtimeReadyPromise;
 }
