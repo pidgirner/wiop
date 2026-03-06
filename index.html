@@ -2,7 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#000000" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -19,12 +19,17 @@
     <div class="app">
       <main class="main">
         <div class="topbar">
+          <button id="mobileMenuBtn" class="mobile-hamburger" type="button" aria-label="Open menu">
+            <span></span>
+            <span></span>
+          </button>
+
           <div class="topbar-left">
             <a class="logo top-logo" href="/app" aria-label="WIOP">
               <img class="logo-icon" src="/icons/icon-192.png" alt="WIOP" />
               <span class="logo-text">WIOP</span>
             </a>
-            <div class="toggle-group" role="tablist" aria-label="Mode">
+            <div class="toggle-group main-toggle" role="tablist" aria-label="Mode">
               <button id="modeChatBtn" class="toggle-btn active" type="button" data-mode="chat">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 Chat
@@ -37,7 +42,7 @@
             <div class="header-nav">
               <button class="header-nav-btn active" data-nav-view="create" type="button">New conversation</button>
               <button class="header-nav-btn" data-nav-view="history" type="button">History</button>
-              <button id="adminTabBtn" class="header-nav-btn hidden" data-nav-view="admin" type="button">Admin</button>
+              <button id="adminTabBtn" class="header-nav-btn hidden" data-nav-view="admin" data-admin-tab type="button">Admin</button>
             </div>
           </div>
 
@@ -52,7 +57,22 @@
               <div class="usage-track"><div id="usageFill" class="usage-fill"></div></div>
             </div>
           </div>
+
+          <button id="mobileGhostBtn" class="mobile-ghost-btn" type="button" data-nav-view="profile" aria-label="Open profile">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C7.58 2 4 5.58 4 10v10l2.5-2 2.5 2 2.5-2 2.5 2 2.5-2 2.5 2V10c0-4.42-3.58-8-8-8zm-3 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+            </svg>
+          </button>
         </div>
+
+        <div id="mobileNavBackdrop" class="mobile-nav-backdrop hidden"></div>
+        <aside id="mobileNavSheet" class="mobile-nav-sheet" aria-hidden="true">
+          <button class="mobile-nav-btn active" data-nav-view="create" type="button">New conversation</button>
+          <button class="mobile-nav-btn" data-nav-view="history" type="button">History</button>
+          <button class="mobile-nav-btn" data-nav-view="profile" type="button">Profile</button>
+          <button class="mobile-nav-btn" data-nav-view="plan" type="button">Subscription</button>
+          <button id="mobileAdminTabBtn" class="mobile-nav-btn hidden" data-nav-view="admin" data-admin-tab type="button">Admin</button>
+        </aside>
 
         <section class="view active" id="view-create">
           <div class="content">
@@ -85,23 +105,23 @@
               <div class="quick-actions">
                 <button class="action-card" data-quick-type="audio" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
-                  Voice Mode
+                  <span class="action-label">Voice Mode</span>
                 </button>
                 <button class="action-card" data-quick-type="image" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/><path d="M13 6h5M15.5 6v5"/></svg>
-                  Create Images
+                  <span class="action-label">Create Images</span>
                 </button>
                 <button class="action-card" data-quick-type="video" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Edit Image
+                  <span class="action-label">Edit Image</span>
                 </button>
                 <button class="action-card" data-quick-type="post" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-                  Analyze
+                  <span class="action-label">Analyze</span>
                 </button>
                 <button class="action-card" data-quick-type="text" type="button">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  DeepSearch
+                  <span class="action-label">DeepSearch</span>
                 </button>
               </div>
 

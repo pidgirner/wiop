@@ -103,8 +103,11 @@ const elements = {
   usageText: document.getElementById("usageText"),
   usageFill: document.getElementById("usageFill"),
   installAppBtn: document.getElementById("installAppBtn"),
+  mobileMenuBtn: document.getElementById("mobileMenuBtn"),
+  mobileNavSheet: document.getElementById("mobileNavSheet"),
+  mobileNavBackdrop: document.getElementById("mobileNavBackdrop"),
   navViewButtons: Array.from(document.querySelectorAll("[data-nav-view]")),
-  adminTabBtn: document.getElementById("adminTabBtn"),
+  adminTabButtons: Array.from(document.querySelectorAll("[data-admin-tab]")),
   views: Array.from(document.querySelectorAll(".view")),
   typeButtons: Array.from(document.querySelectorAll(".type-btn")),
   quickActionCards: Array.from(document.querySelectorAll("[data-quick-type]")),
@@ -184,7 +187,25 @@ function bindEvents() {
   elements.navViewButtons.forEach((button) => {
     button.addEventListener("click", () => {
       setActiveView(button.dataset.navView);
+      closeMobileNav();
     });
+  });
+
+  if (elements.mobileMenuBtn) {
+    elements.mobileMenuBtn.addEventListener("click", toggleMobileNav);
+  }
+  if (elements.mobileNavBackdrop) {
+    elements.mobileNavBackdrop.addEventListener("click", closeMobileNav);
+  }
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMobileNav();
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) {
+      closeMobileNav();
+    }
   });
 
   elements.typeButtons.forEach((button) => {
@@ -1370,7 +1391,9 @@ function renderStats() {
 
 function renderAdminTab() {
   const show = isAdmin();
-  elements.adminTabBtn.classList.toggle("hidden", !show);
+  elements.adminTabButtons.forEach((button) => {
+    button.classList.toggle("hidden", !show);
+  });
   const adminViewIsActive = document.getElementById("view-admin")?.classList.contains("active");
   if (!show && adminViewIsActive) {
     setActiveView("create");
@@ -1586,6 +1609,39 @@ function setActiveView(viewId) {
   if (viewId === "admin" && isAdmin() && !adminState.overview) {
     void loadAdminData(false);
   }
+}
+
+function openMobileNav() {
+  if (!elements.mobileNavSheet || !elements.mobileNavBackdrop) {
+    return;
+  }
+
+  elements.mobileNavSheet.classList.add("open");
+  elements.mobileNavSheet.setAttribute("aria-hidden", "false");
+  elements.mobileNavBackdrop.classList.remove("hidden");
+}
+
+function closeMobileNav() {
+  if (!elements.mobileNavSheet || !elements.mobileNavBackdrop) {
+    return;
+  }
+
+  elements.mobileNavSheet.classList.remove("open");
+  elements.mobileNavSheet.setAttribute("aria-hidden", "true");
+  elements.mobileNavBackdrop.classList.add("hidden");
+}
+
+function toggleMobileNav() {
+  if (!elements.mobileNavSheet) {
+    return;
+  }
+
+  if (elements.mobileNavSheet.classList.contains("open")) {
+    closeMobileNav();
+    return;
+  }
+
+  openMobileNav();
 }
 
 function setHistoryFilter(filter) {
