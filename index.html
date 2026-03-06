@@ -163,9 +163,12 @@
         </section>
 
         <section class="view" id="view-history">
-          <article class="panel-card">
+          <article class="panel-card panel-history">
             <div class="panel-head">
-              <h2>History</h2>
+              <div>
+                <h2>History</h2>
+                <p class="panel-subtitle">Все генерации и быстрый доступ к результатам.</p>
+              </div>
               <button id="clearHistoryBtn" class="mini-btn" type="button">Clear</button>
             </div>
             <div class="history-controls">
@@ -184,7 +187,13 @@
         </section>
 
         <section class="view" id="view-profile">
-          <article class="panel-card">
+          <article class="panel-card panel-profile">
+            <div class="panel-head">
+              <div>
+                <h2>Profile</h2>
+                <p class="panel-subtitle">Настройки аккаунта, доступ и история активности.</p>
+              </div>
+            </div>
             <div id="authLoggedIn" class="stack">
               <p id="authIdentity"></p>
               <div class="row-btns">
@@ -225,9 +234,12 @@
         </section>
 
         <section class="view" id="view-plan">
-          <article class="panel-card">
+          <article class="panel-card panel-plan">
             <div class="panel-head">
-              <h2>Plan</h2>
+              <div>
+                <h2>Plan</h2>
+                <p class="panel-subtitle">Выберите тариф под объём и формат вашего контента.</p>
+              </div>
             </div>
             <div id="plansGrid" class="plans-grid"></div>
             <p id="billingMessage" class="message" aria-live="polite"></p>
@@ -237,7 +249,10 @@
         <section class="view" id="view-admin">
           <article class="panel-card admin-card">
             <div class="panel-head">
-              <h2>Admin</h2>
+              <div>
+                <h2>Admin</h2>
+                <p class="panel-subtitle">Клиенты, платежи, лиды и операционная аналитика.</p>
+              </div>
               <button id="adminRefreshBtn" class="mini-btn" type="button">Refresh</button>
             </div>
             <div id="adminMetricsGrid" class="stats-grid"></div>
@@ -247,11 +262,53 @@
               <select id="adminRoleFilter"><option value="">All roles</option><option value="user">User</option><option value="admin">Admin</option></select>
               <select id="adminStatusFilter"><option value="">Any status</option><option value="active">active</option><option value="blocked">blocked</option></select>
             </div>
-            <div class="table-wrap"><table class="admin-table"><tbody id="adminUsersBody"></tbody></table></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Пользователь</th>
+                    <th>Роль</th>
+                    <th>План</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                    <th>Действие</th>
+                  </tr>
+                </thead>
+                <tbody id="adminUsersBody"></tbody>
+              </table>
+            </div>
             <select id="adminPaymentStatusFilter"><option value="">All statuses</option><option value="SUCCESS">SUCCESS</option><option value="OVERPAID">OVERPAID</option><option value="UNDERPAID">UNDERPAID</option><option value="PROCESS">PROCESS</option><option value="NEW">NEW</option><option value="FAIL">FAIL</option></select>
-            <div class="table-wrap"><table class="admin-table"><tbody id="adminPaymentsBody"></tbody></table></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Клиент</th>
+                    <th>Тариф</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Order ID</th>
+                  </tr>
+                </thead>
+                <tbody id="adminPaymentsBody"></tbody>
+              </table>
+            </div>
             <select id="adminLeadStatusFilter"><option value="">All lead statuses</option><option value="new">new</option><option value="contacted">contacted</option><option value="qualified">qualified</option><option value="converted">converted</option><option value="archived">archived</option></select>
-            <div class="table-wrap"><table class="admin-table"><tbody id="adminLeadsBody"></tbody></table></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Контакт</th>
+                    <th>Компания</th>
+                    <th>Цель</th>
+                    <th>Статус</th>
+                    <th>Действие</th>
+                  </tr>
+                </thead>
+                <tbody id="adminLeadsBody"></tbody>
+              </table>
+            </div>
             <p id="adminMessage" class="message" aria-live="polite"></p>
           </article>
         </section>
